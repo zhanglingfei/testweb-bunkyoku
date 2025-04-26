@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文京区給食費管理システム - 食数管理</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="food-management-css.css">
+</head>
+<body>
+    <div class="header">
+        <h1>文京区給食費管理システム</h1>
+        <div class="user-info">
+            <span>管理者：田中 太郎</span>
+            <button class="logout-btn">ログアウト</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item"><i class="fas fa-home"></i>ホーム</a></li>
+                <li><a href="bunkyo-user-management.html" class="nav-item active"><i class="fas fa-users"></i>喫食者情報</a></li>
+                <li><a href="food-management.html" class="nav-item"><i class="fas fa-utensils"></i>食数管理</a></li>
+                <li><a href="assessment-processing.html" class="nav-item"><i class="fas fa-calculator"></i>調定処理</a></li>
+                <li><a href="billing-processing.html" class="nav-item"><i class="fas fa-file-invoice"></i>請求処理</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-file-invoice-dollar"></i>納付書作成</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-money-bill-wave"></i>給食費入金</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-hand-holding-usd"></i>給食費返金</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-exclamation-triangle"></i>未収金管理</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-file-alt"></i>帳票出力</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-cog"></i>システム設定</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <h2 class="page-title"><i class="fas fa-utensils"></i> 食数管理</h2>
+            
+            <div class="action-bar">
+                <div class="search-container">
+                    <div class="search-field">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="名前で検索">
+                    </div>
+                    <div class="search-options">
+                        <select id="school-select">
+                            <option>全ての学校</option>
+                            <option>文京第一小学校</option>
+                            <option>文京第二小学校</option>
+                            <option>文京第三小学校</option>
+                            <option>文京第一中学校</option>
+                        </select>
+                        <select id="grade-select">
+                            <option>全ての学年</option>
+                            <option>1年</option>
+                            <option>2年</option>
+                            <option>3年</option>
+                            <option>4年</option>
+                            <option>5年</option>
+                            <option>6年</option>
+                        </select>
+                        <select id="class-select">
+                            <option>全てのクラス</option>
+                            <option>1組</option>
+                            <option>2組</option>
+                            <option>3組</option>
+                        </select>
+                        <select id="date-select">
+                            <option>今日</option>
+                            <option>今週</option>
+                            <option>今月</option>
+                            <option>日付指定</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-success" onclick="openBulkEditModal()"><i class="fas fa-edit"></i> 一括編集</button>
+                    <button class="btn btn-primary" onclick="openEventModal()"><i class="fas fa-calendar-plus"></i> 行事設定</button>
+                    <button class="btn btn-warning"><i class="fas fa-file-export"></i> エクスポート</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">食数管理</div>
+                    <div class="date-navigator">
+                        <button class="btn-icon"><i class="fas fa-angle-left"></i></button>
+                        <span class="current-date">2025年4月26日</span>
+                        <button class="btn-icon"><i class="fas fa-angle-right"></i></button>
+                        <button class="btn-icon" style="margin-left: 10px;"><i class="fas fa-calendar-alt"></i></button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('tab-eating')">喫食予定</div>
+                        <div class="tab" onclick="switchTab('tab-actual')">喫食実績</div>
+                        <div class="tab" onclick="switchTab('tab-summary')">集計</div>
+                    </div>
+                    
+                    <div class="tab-content active" id="tab-eating">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>氏名</th>
+                                    <th>学校</th>
+                                    <th>学年・クラス</th>
+                                    <th>喫食場所</th>
+                                    <th>喫食状況</th>
+                                    <th>期間</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2025001</td>
+                                    <td>山田 太郎</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年1組</td>
+                                    <td>文京第一小学校</td>
+                                    <td>
+                                        <select class="eating-status">
+                                            <option value="eating" selected>○ 喫食</option>
+                                            <option value="absent-subsidy">△ 欠食（代替補助金対象）</option>
+                                            <option value="absent-nosubsidy">× 欠食（代替補助金対象外）</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <button class="btn-period" onclick="openPeriodModal()">期間設定</button>
+                                    </td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025002</td>
+                                    <td>佐藤 一郎</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年1組</td>
+                                    <td>文京第一小学校</td>
+                                    <td>
+                                        <select class="eating-status">
+                                            <option value="eating" selected>○ 喫食</option>
+                                            <option value="absent-subsidy">△ 欠食（代替補助金対象）</option>
+                                            <option value="absent-nosubsidy">× 欠食（代替補助金対象外）</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <button class="btn-period" onclick="openPeriodModal()">期間設定</button>
+                                    </td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025003</td>
+                                    <td>鈴木 花子</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年2組</td>
+                                    <td>文京第一小学校</td>
+                                    <td>
+                                        <select class="eating-status">
+                                            <option value="eating">○ 喫食</option>
+                                            <option value="absent-subsidy" selected>△ 欠食（代替補助金対象）</option>
+                                            <option value="absent-nosubsidy">× 欠食（代替補助金対象外）</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <button class="btn-period" onclick="openPeriodModal()">期間設定</button>
+                                    </td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025004</td>
+                                    <td>田中 次郎</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年2組</td>
+                                    <td>文京第一小学校</td>
+                                    <td>
+                                        <select class="eating-status">
+                                            <option value="eating" selected>○ 喫食</option>
+                                            <option value="absent-subsidy">△ 欠食（代替補助金対象）</option>
+                                            <option value="absent-nosubsidy">× 欠食（代替補助金対象外）</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <button class="btn-period" onclick="openPeriodModal()">期間設定</button>
+                                    </td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025005</td>
+                                    <td>高橋 真理</td>
+                                    <td>文京第二小学校</td>
+                                    <td>4年1組</td>
+                                    <td>文京第二小学校</td>
+                                    <td>
+                                        <select class="eating-status">
+                                            <option value="eating">○ 喫食</option>
+                                            <option value="absent-subsidy">△ 欠食（代替補助金対象）</option>
+                                            <option value="absent-nosubsidy" selected>× 欠食（代替補助金対象外）</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <button class="btn-period" onclick="openPeriodModal()">期間設定</button>
+                                    </td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination">
+                            <div class="page-item"><i class="fas fa-angle-double-left"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-left"></i></div>
+                            <div class="page-item active">1</div>
+                            <div class="page-item">2</div>
+                            <div class="page-item">3</div>
+                            <div class="page-item"><i class="fas fa-angle-right"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-double-right"></i></div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="tab-actual">
+                        <div class="status-filter">
+                            <span>表示：</span>
+                            <label><input type="checkbox" checked> 喫食</label>
+                            <label><input type="checkbox" checked> 欠食（代替補助金対象）</label>
+                            <label><input type="checkbox" checked> 欠食（代替補助金対象外）</label>
+                            <span style="margin-left: 20px;">喫食予定と異なる実績のみ表示</span>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>氏名</th>
+                                    <th>学校</th>
+                                    <th>学年・クラス</th>
+                                    <th>喫食場所</th>
+                                    <th>喫食予定</th>
+                                    <th>喫食実績</th>
+                                    <th>更新者</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2025001</td>
+                                    <td>山田 太郎</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年1組</td>
+                                    <td>文京第一小学校</td>
+                                    <td><span class="status status-success">○ 喫食</span></td>
+                                    <td>
+                                        <select class="eating-status">
+                                            <option value="eating" selected>○ 喫食</option>
+                                            <option value="absent-subsidy">△ 欠食（代替補助金対象）</option>
+                                            <option value="absent-nosubsidy">× 欠食（代替補助金対象外）</option>
+                                        </select>
+                                    </td>
+                                    <td>田中 太郎</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary"><i class="fas fa-save"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025002</td>
+                                    <td>佐藤 一郎</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年1組</td>
+                                    <td>文京第一小学校</td>
+                                    <td><span class="status status-success">○ 喫食</span></td>
+                                    <td>
+                                        <select class="eating-status">
+                                            <option value="eating" selected>○ 喫食</option>
+                                            <option value="absent-subsidy">△ 欠食（代替補助金対象）</option>
+                                            <option value="absent-nosubsidy">× 欠食（代替補助金対象外）</option>
+                                        </select>
+                                    </td>
+                                    <td>田中 太郎</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary"><i class="fas fa-save"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025003</td>
+                                    <td>鈴木 花子</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年2組</td>
+                                    <td>文京第一小学校</td>
+                                    <td><span class="status status-warning">△ 欠食（代替補助金対象）</span></td>
+                                    <td>
+                                        <select class="eating-status">
+                                            <option value="eating">○ 喫食</option>
+                                            <option value="absent-subsidy" selected>△ 欠食（代替補助金対象）</option>
+                                            <option value="absent-nosubsidy">× 欠食（代替補助金対象外）</option>
+                                        </select>
+                                    </td>
+                                    <td>田中 太郎</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary"><i class="fas fa-save"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025004</td>
+                                    <td>田中 次郎</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年2組</td>
+                                    <td>文京第一小学校</td>
+                                    <td><span class="status status-success">○ 喫食</span></td>
+                                    <td>
+                                        <select class="eating-status">
+                                            <option value="eating">○ 喫食</option>
+                                            <option value="absent-subsidy" selected>△ 欠食（代替補助金対象）</option>
+                                            <option value="absent-nosubsidy">× 欠食（代替補助金対象外）</option>
+                                        </select>
+                                    </td>
+                                    <td>田中 太郎</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary"><i class="fas fa-save"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025005</td>
+                                    <td>高橋 真理</td>
+                                    <td>文京第二小学校</td>
+                                    <td>4年1組</td>
+                                    <td>文京第二小学校</td>
+                                    <td><span class="status status-danger">× 欠食（代替補助金対象外）</span></td>
+                                    <td>
+                                        <select class="eating-status">
+                                            <option value="eating">○ 喫食</option>
+                                            <option value="absent-subsidy">△ 欠食（代替補助金対象）</option>
+                                            <option value="absent-nosubsidy" selected>× 欠食（代替補助金対象外）</option>
+                                        </select>
+                                    </td>
+                                    <td>田中 太郎</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary"><i class="fas fa-save"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination">
+                            <div class="page-item"><i class="fas fa-angle-double-left"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-left"></i></div>
+                            <div class="page-item active">1</div>
+                            <div class="page-item">2</div>
+                            <div class="page-item">3</div>
+                            <div class="page-item"><i class="fas fa-angle-right"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-double-right"></i></div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="tab-summary">
+                        <div class="summary-controls">
+                            <div class="form-group">
+                                <label class="form-label">集計期間</label>
+                                <select class="form-select">
+                                    <option value="day">日次</option>
+                                    <option value="week">週次</option>
+                                    <option value="month" selected>月次</option>
+                                    <option value="term">学期</option>
+                                    <option value="year">年次</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">集計単位</label>
+                                <select class="form-select">
+                                    <option value="all">全体</option>
+                                    <option value="school" selected>学校別</option>
+                                    <option value="grade">学年別</option>
+                                    <option value="class">クラス別</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">表示項目</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" checked> 喫食</label>
+                                    <label><input type="checkbox" checked> 欠食（代替補助金対象）</label>
+                                    <label><input type="checkbox" checked> 欠食（代替補助金対象外）</label>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary">集計</button>
+                            <button class="btn btn-warning"><i class="fas fa-file-export"></i> エクスポート</button>
+                        </div>
+                        
+                        <div class="summary-chart">
+                            <h3>2025年4月 学校別 食数集計</h3>
+                            <div class="chart-container">
+                                <!-- ここに集計結果のグラフが表示される -->
+                                <div class="placeholder-chart">
+                                    <div class="bar-container">
+                                        <div class="school-label">文京第一小学校</div>
+                                        <div class="bar-group">
+                                            <div class="bar bar-eating" style="width: 80%;">喫食: 420食</div>
+                                            <div class="bar bar-absent-subsidy" style="width: 10%;">欠食（補助金対象）: 52食</div>
+                                            <div class="bar bar-absent-nosubsidy" style="width: 5%;">欠食（補助金対象外）: 28食</div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="school-label">文京第二小学校</div>
+                                        <div class="bar-group">
+                                            <div class="bar bar-eating" style="width: 75%;">喫食: 380食</div>
+                                            <div class="bar bar-absent-subsidy" style="width: 15%;">欠食（補助金対象）: 78食</div>
+                                            <div class="bar bar-absent-nosubsidy" style="width: 5%;">欠食（補助金対象外）: 25食</div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="school-label">文京第三小学校</div>
+                                        <div class="bar-group">
+                                            <div class="bar bar-eating" style="width: 85%;">喫食: 450食</div>
+                                            <div class="bar bar-absent-subsidy" style="width: 8%;">欠食（補助金対象）: 42食</div>
+                                            <div class="bar bar-absent-nosubsidy" style="width: 4%;">欠食（補助金対象外）: 20食</div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="school-label">文京第一中学校</div>
+                                        <div class="bar-group">
+                                            <div class="bar bar-eating" style="width: 70%;">喫食: 360食</div>
+                                            <div class="bar bar-absent-subsidy" style="width: 12%;">欠食（補助金対象）: 62食</div>
+                                            <div class="bar bar-absent-nosubsidy" style="width: 8%;">欠食（補助金対象外）: 40食</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <table class="summary-table">
+                            <thead>
+                                <tr>
+                                    <th>学校</th>
+                                    <th>喫食</th>
+                                    <th>欠食（代替補助金対象）</th>
+                                    <th>欠食（代替補助金対象外）</th>
+                                    <th>合計</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>文京第一小学校</td>
+                                    <td>420</td>
+                                    <td>52</td>
+                                    <td>28</td>
+                                    <td>500</td>
+                                </tr>
+                                <tr>
+                                    <td>文京第二小学校</td>
+                                    <td>380</td>
+                                    <td>78</td>
+                                    <td>25</td>
+                                    <td>483</td>
+                                </tr>
+                                <tr>
+                                    <td>文京第三小学校</td>
+                                    <td>450</td>
+                                    <td>42</td>
+                                    <td>20</td>
+                                    <td>512</td>
+                                </tr>
+                                <tr>
+                                    <td>文京第一中学校</td>
+                                    <td>360</td>
+                                    <td>62</td>
+                                    <td>40</td>
+                                    <td>462</td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td>合計</td>
+                                    <td>1,610</td>
+                                    <td>234</td>
+                                    <td>113</td>
+                                    <td>1,957</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：期間設定 -->
+    <div class="modal-backdrop" id="period-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">喫食状況期間設定</div>
+                <button class="modal-close" onclick="closePeriodModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">対象者</label>
+                    <input type="text" class="form-control" value="山田 太郎" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">喫食状況<span class="form-required">*</span></label>
+                    <select class="form-select">
+                        <option value="eating">○ 喫食</option>
+                        <option value="absent-subsidy">△ 欠食（代替補助金対象）</option>
+                        <option value="absent-nosubsidy">× 欠食（代替補助金対象外）</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">期間<span class="form-required">*</span></label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <input type="date" class="form-control" placeholder="開始日">
+                        </div>
+                        <div class="form-col">
+                            <input type="date" class="form-control" placeholder="終了日">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">理由</label>
+                    <textarea class="form-control" rows="3" placeholder="欠食理由等がある場合はこちらに入力してください"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success">保存</button>
+                <button class="btn btn-danger" onclick="closePeriodModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：一括編集 -->
+    <div class="modal-backdrop" id="bulk-edit-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">喫食状況一括編集</div>
+                <button class="modal-close" onclick="closeBulkEditModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">対象範囲<span class="form-required">*</span></label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <select class="form-select">
+                                <option value="all">全て</option>
+                                <option value="school">学校</option>
+                                <option value="grade">学年</option>
+                                <option value="class">クラス</option>
+                                <option value="individual">個人</option>
+                            </select>
+                        </div>
+                        <div class="form-col">
+                            <select class="form-select">
+                                <option>文京第一小学校</option>
+                                <option>文京第二小学校</option>
+                                <option>文京第三小学校</option>
+                                <option>文京第一中学校</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">喫食状況<span class="form-required">*</span></label>
+                    <select class="form-select">
+                        <option value="eating">○ 喫食</option>
+                        <option value="absent-subsidy">△ 欠食（代替補助金対象）</option>
+                        <option value="absent-nosubsidy">× 欠食（代替補助金対象外）</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">期間<span class="form-required">*</span></label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <input type="date" class="form-control" placeholder="開始日">
+                        </div>
+                        <div class="form-col">
+                            <input type="date" class="form-control" placeholder="終了日">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">理由</label>
+                    <textarea class="form-control" rows="3" placeholder="一括変更理由等がある場合はこちらに入力してください"></textarea>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> この操作により選択した対象範囲の喫食状況がすべて変更されます。操作は元に戻せません。
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success">一括更新</button>
+                <button class="btn btn-danger" onclick="closeBulkEditModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：行事設定 -->
+    <div class="modal-backdrop" id="event-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">行事設定</div>
+                <button class="modal-close" onclick="closeEventModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">行事名<span class="form-required">*</span></label>
+                    <input type="text" class="form-control" placeholder="例：校外学習">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">対象範囲<span class="form-required">*</span></label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <select class="form-select">
+                                <option value="all">全て</option>
+                                <option value="school">学校</option>
+                                <option value="grade">学年</option>
+                                <option value="class">クラス</option>
+                            </select>
+                        </div>
+                        <div class="form-col">
+                            <select class="form-select">
+                                <option>文京第一小学校</option>
+                                <option>文京第二小学校</option>
+                                <option>文京第三小学校</option>
+                                <option>文京第一中学校</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">影響設定<span class="form-required">*</span></label>
+                    <select class="form-select">
+                        <option value="absent-subsidy">△ 欠食（代替補助金対象）</option>
+                        <option value="absent-nosubsidy">× 欠食（代替補助金対象外）</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">期間<span class="form-required">*</span></label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <input type="date" class="form-control" placeholder="開始日">
+                        </div>
+                        <div class="form-col">
+                            <input type="date" class="form-control" placeholder="終了日">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">備考</label>
+                    <textarea class="form-control" rows="3" placeholder="備考がある場合はこちらに入力してください"></textarea>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 行事を登録すると、対象範囲の喫食者の喫食予定に自動的に反映されます。
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success">登録</button>
+                <button class="btn btn-danger" onclick="closeEventModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notifications">
+        <div class="notification">
+            <div class="notification-icon notification-success">
+                <i class="fas fa-check"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">操作完了</div>
+                <div class="notification-message">喫食状況が正常に更新されました。</div>
+            </div>
+            <button class="notification-close">&times;</button>
+        </div>
+    </div>
+    
+    <script src="food-management-js.js"></script>
+</body>
+</html>

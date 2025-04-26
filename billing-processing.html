@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文京区給食費管理システム - 請求処理</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="billing-processing-css.css">
+</head>
+<body>
+    <div class="header">
+        <h1>文京区給食費管理システム</h1>
+        <div class="user-info">
+            <span>管理者：田中 太郎</span>
+            <button class="logout-btn">ログアウト</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item"><i class="fas fa-home"></i>ホーム</a></li>
+                <li><a href="bunkyo-user-management.html" class="nav-item active"><i class="fas fa-users"></i>喫食者情報</a></li>
+                <li><a href="food-management.html" class="nav-item"><i class="fas fa-utensils"></i>食数管理</a></li>
+                <li><a href="assessment-processing.html" class="nav-item"><i class="fas fa-calculator"></i>調定処理</a></li>
+                <li><a href="billing-processing.html" class="nav-item"><i class="fas fa-file-invoice"></i>請求処理</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-file-invoice-dollar"></i>納付書作成</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-money-bill-wave"></i>給食費入金</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-hand-holding-usd"></i>給食費返金</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-exclamation-triangle"></i>未収金管理</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-file-alt"></i>帳票出力</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-cog"></i>システム設定</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <h2 class="page-title"><i class="fas fa-file-invoice"></i> 請求処理</h2>
+            
+            <div class="action-bar">
+                <div class="search-container">
+                    <div class="search-field">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="名前で検索">
+                    </div>
+                    <div class="search-options">
+                        <select id="school-select">
+                            <option>全ての学校</option>
+                            <option>文京第一小学校</option>
+                            <option>文京第二小学校</option>
+                            <option>文京第三小学校</option>
+                            <option>文京第一中学校</option>
+                        </select>
+                        <select id="grade-select">
+                            <option>全ての学年</option>
+                            <option>1年</option>
+                            <option>2年</option>
+                            <option>3年</option>
+                            <option>4年</option>
+                            <option>5年</option>
+                            <option>6年</option>
+                        </select>
+                        <select id="month-select">
+                            <option>2025年4月</option>
+                            <option>2025年5月</option>
+                            <option>2025年6月</option>
+                            <option>2025年7月</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="generateBankTransferData()"><i class="fas fa-university"></i> 口座振替データ作成</button>
+                    <button class="btn btn-success" onclick="exportCSVData()"><i class="fas fa-file-csv"></i> CSVデータ出力</button>
+                    <button class="btn btn-warning"><i class="fas fa-file-export"></i> エクスポート</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">請求処理一覧</div>
+                    <div class="date-navigator">
+                        <button class="btn-icon"><i class="fas fa-angle-left"></i></button>
+                        <span class="current-date">2025年4月</span>
+                        <button class="btn-icon"><i class="fas fa-angle-right"></i></button>
+                        <button class="btn-icon" style="margin-left: 10px;"><i class="fas fa-calendar-alt"></i></button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('tab-individual')">個人別</div>
+                        <div class="tab" onclick="switchTab('tab-bank')">金融機関別</div>
+                        <div class="tab" onclick="switchTab('tab-special')">特例情報</div>
+                        <div class="tab" onclick="switchTab('tab-multiple')">複数月選択</div>
+                        <div class="tab" onclick="switchTab('tab-summary')">集計</div>
+                    </div>
+                    
+                    <div class="tab-content active" id="tab-individual">
+                        <div class="status-filter">
+                            <span>表示：</span>
+                            <label><input type="checkbox" checked> 請求済</label>
+                            <label><input type="checkbox" checked> 未請求</label>
+                            <span style="margin-left: 20px;">支払方法：</span>
+                            <label><input type="checkbox" checked> 口座振替</label>
+                            <label><input type="checkbox" checked> 納付書</label>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>氏名</th>
+                                    <th>学校</th>
+                                    <th>学年・クラス</th>
+                                    <th>調定額</th>
+                                    <th>特例情報</th>
+                                    <th>支払方法</th>
+                                    <th>請求状態</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2025001</td>
+                                    <td>山田 太郎</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年1組</td>
+                                    <td>5,600円</td>
+                                    <td></td>
+                                    <td>口座振替</td>
+                                    <td><span class="status status-success">請求済</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openDetailModal(2025001)"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025002</td>
+                                    <td>佐藤 一郎</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年1組</td>
+                                    <td>5,040円</td>
+                                    <td></td>
+                                    <td>口座振替</td>
+                                    <td><span class="status status-success">請求済</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openDetailModal(2025002)"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025003</td>
+                                    <td>鈴木 花子</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年2組</td>
+                                    <td>2,800円</td>
+                                    <td><span class="badge badge-warning">就学援助</span></td>
+                                    <td>納付書</td>
+                                    <td><span class="status status-warning">未請求</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openDetailModal(2025003)"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025004</td>
+                                    <td>田中 次郎</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年2組</td>
+                                    <td>5,600円</td>
+                                    <td></td>
+                                    <td>口座振替</td>
+                                    <td><span class="status status-success">請求済</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openDetailModal(2025004)"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025005</td>
+                                    <td>高橋 真理</td>
+                                    <td>文京第二小学校</td>
+                                    <td>4年1組</td>
+                                    <td>0円</td>
+                                    <td><span class="badge badge-danger">生活保護</span></td>
+                                    <td>納付書</td>
+                                    <td><span class="status status-info">対象外</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openDetailModal(2025005)"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination">
+                            <div class="page-item"><i class="fas fa-angle-double-left"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-left"></i></div>
+                            <div class="page-item active">1</div>
+                            <div class="page-item">2</div>
+                            <div class="page-item">3</div>
+                            <div class="page-item"><i class="fas fa-angle-right"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-double-right"></i></div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="tab-bank">
+                        <div class="status-filter">
+                            <span>表示：</span>
+                            <label><input type="checkbox" checked> 請求済</label>
+                            <label><input type="checkbox" checked> 未請求</label>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>金融機関コード</th>
+                                    <th>金融機関名</th>
+                                    <th>対象者数</th>
+                                    <th>請求金額合計</th>
+                                    <th>状態</th>
+                                    <th>最終処理日</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>0001</td>
+                                    <td>三菱UFJ銀行</td>
+                                    <td>125</td>
+                                    <td>675,000円</td>
+                                    <td><span class="status status-success">請求済</span></td>
+                                    <td>2025/04/10</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openBankDetailModal('0001')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-download"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>0005</td>
+                                    <td>三井住友銀行</td>
+                                    <td>98</td>
+                                    <td>529,200円</td>
+                                    <td><span class="status status-success">請求済</span></td>
+                                    <td>2025/04/10</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openBankDetailModal('0005')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-download"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>0009</td>
+                                    <td>みずほ銀行</td>
+                                    <td>87</td>
+                                    <td>469,800円</td>
+                                    <td><span class="status status-success">請求済</span></td>
+                                    <td>2025/04/10</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openBankDetailModal('0009')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-download"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>9900</td>
+                                    <td>ゆうちょ銀行</td>
+                                    <td>156</td>
+                                    <td>842,400円</td>
+                                    <td><span class="status status-success">請求済</span></td>
+                                    <td>2025/04/10</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openBankDetailModal('9900')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-download"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>0288</td>
+                                    <td>りそな銀行</td>
+                                    <td>42</td>
+                                    <td>226,800円</td>
+                                    <td><span class="status status-warning">未請求</span></td>
+                                    <td>-</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openBankDetailModal('0288')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-download"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="tab-content" id="tab-special">
+                        <div class="status-filter">
+                            <span>特例情報の種類：</span>
+                            <label><input type="checkbox" checked> 生活保護</label>
+                            <label><input type="checkbox" checked> 就学援助</label>
+                            <label><input type="checkbox" checked> 児童手当からの徴収</label>
+                            <label><input type="checkbox" checked> その他減免措置</label>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>特例情報</th>
+                                    <th>対象者数</th>
+                                    <th>調定額合計</th>
+                                    <th>減免額合計</th>
+                                    <th>請求額合計</th>
+                                    <th>処理状態</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge badge-danger">生活保護</span></td>
+                                    <td>28</td>
+                                    <td>151,200円</td>
+                                    <td>151,200円</td>
+                                    <td>0円</td>
+                                    <td><span class="status status-info">対象外</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openSpecialDetailModal('welfare')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-file-csv"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge badge-warning">就学援助</span></td>
+                                    <td>45</td>
+                                    <td>243,000円</td>
+                                    <td>141,750円</td>
+                                    <td>101,250円</td>
+                                    <td><span class="status status-warning">未請求</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openSpecialDetailModal('subsidy')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-file-csv"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge badge-primary">児童手当からの徴収</span></td>
+                                    <td>32</td>
+                                    <td>172,800円</td>
+                                    <td>0円</td>
+                                    <td>172,800円</td>
+                                    <td><span class="status status-warning">未請求</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openSpecialDetailModal('allowance')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-file-csv"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge badge-secondary">その他減免措置</span></td>
+                                    <td>15</td>
+                                    <td>81,000円</td>
+                                    <td>40,500円</td>
+                                    <td>40,500円</td>
+                                    <td><span class="status status-warning">未請求</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openSpecialDetailModal('other')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-file-csv"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="tab-content" id="tab-multiple">
+                        <div class="month-selector">
+                            <div class="form-group">
+                                <label class="form-label">複数月請求設定</label>
+                                <div class="month-grid">
+                                    <div class="month-item active">
+                                        <div class="month-checkbox">
+                                            <input type="checkbox" id="month-04" checked>
+                                            <label for="month-04">2025年4月</label>
+                                        </div>
+                                        <div class="month-amount">2,743,200円</div>
+                                    </div>
+                                    <div class="month-item">
+                                        <div class="month-checkbox">
+                                            <input type="checkbox" id="month-05">
+                                            <label for="month-05">2025年5月</label>
+                                        </div>
+                                        <div class="month-amount">-</div>
+                                    </div>
+                                    <div class="month-item">
+                                        <div class="month-checkbox">
+                                            <input type="checkbox" id="month-06">
+                                            <label for="month-06">2025年6月</label>
+                                        </div>
+                                        <div class="month-amount">-</div>
+                                    </div>
+                                    <div class="month-item">
+                                        <div class="month-checkbox">
+                                            <input type="checkbox" id="month-07">
+                                            <label for="month-07">2025年7月</label>
+                                        </div>
+                                        <div class="month-amount">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">処理対象</label>
+                                <div class="form-row">
+                                    <div class="form-col">
+                                        <select class="form-select">
+                                            <option value="all" selected>全ての対象者</option>
+                                            <option value="bank">口座振替対象者のみ</option>
+                                            <option value="paper">納付書対象者のみ</option>
+                                            <option value="special">特例情報対象者のみ</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> 複数月を選択して口座振替データを作成する場合、選択した月の合計金額が一括で請求されます。
+                            </div>
+                            <div class="form-actions">
+                                <button class="btn btn-primary" onclick="generateMultipleMonthData()"><i class="fas fa-university"></i> 口座振替データ作成</button>
+                                <button class="btn btn-warning"><i class="fas fa-file-invoice-dollar"></i> 納付書作成</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="tab-summary">
+                        <div class="summary-controls">
+                            <div class="form-group">
+                                <label class="form-label">表示項目</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" checked> 口座振替</label>
+                                    <label><input type="checkbox" checked> 納付書</label>
+                                    <label><input type="checkbox" checked> 特例情報</label>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary">集計</button>
+                            <button class="btn btn-warning"><i class="fas fa-file-export"></i> エクスポート</button>
+                        </div>
+                        
+                        <div class="summary-chart">
+                            <h3>2025年4月 請求処理状況</h3>
+                            <div class="chart-container">
+                                <div class="placeholder-chart">
+                                    <div class="bar-container">
+                                        <div class="bar-label">口座振替</div>
+                                        <div class="bar-group">
+                                            <div class="bar bar-eating" style="width: 90%;">請求済: 2,516,400円</div>
+                                            <div class="bar bar-absent-subsidy" style="width: 10%;">未請求: 226,800円</div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="bar-label">納付書</div>
+                                        <div class="bar-group">
+                                            <div class="bar bar-eating" style="width: 40%;">請求済: 156,800円</div>
+                                            <div class="bar bar-absent-subsidy" style="width: 60%;">未請求: 235,200円</div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="bar-label">特例情報</div>
+                                        <div class="bar-group">
+                                            <div class="bar bar-eating" style="width: 0%;">請求済: 0円</div>
+                                            <div class="bar bar-absent-subsidy" style="width: 75%;">未請求: 314,550円</div>
+                                            <div class="bar bar-absent-nosubsidy" style="width: 25%;">対象外: 151,200円</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <table class="summary-table">
+                            <thead>
+                                <tr>
+                                    <th>支払方法</th>
+                                    <th>対象者数</th>
+                                    <th>請求済金額</th>
+                                    <th>未請求金額</th>
+                                    <th>対象外金額</th>
+                                    <th>合計</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>口座振替</td>
+                                    <td>508</td>
+                                    <td>2,516,400円</td>
+                                    <td>226,800円</td>
+                                    <td>0円</td>
+                                    <td>2,743,200円</td>
+                                </tr>
+                                <tr>
+                                    <td>納付書</td>
+                                    <td>78</td>
+                                    <td>156,800円</td>
+                                    <td>235,200円</td>
+                                    <td>0円</td>
+                                    <td>392,000円</td>
+                                </tr>
+                                <tr>
+                                    <td>特例情報</td>
+                                    <td>120</td>
+                                    <td>0円</td>
+                                    <td>314,550円</td>
+                                    <td>151,200円</td>
+                                    <td>465,750円</td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td>合計</td>
+                                    <td>706</td>
+                                    <td>2,673,200円</td>
+                                    <td>776,550円</td>
+                                    <td>151,200円</td>
+                                    <td>3,600,950円</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：口座振替データ作成 -->
+    <div class="modal-backdrop" id="bank-transfer-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">口座振替データ作成</div>
+                <button class="modal-close" onclick="closeBankTransferModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">対象期間<span class="form-required">*</span></label>
+                    <select class="form-select" id="transfer-period">
+                        <option value="2025-04" selected>2025年4月</option>
+                        <option value="2025-05">2025年5月</option>
+                        <option value="2025-06">2025年6月</option>
+                        <option value="2025-07">2025年7月</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">対象金融機関<span class="form-required">*</span></label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" checked> 全ての金融機関</label>
+                        <label><input type="checkbox"> 三菱UFJ銀行</label>
+                        <label><input type="checkbox"> 三井住友銀行</label>
+                        <label><input type="checkbox"> みずほ銀行</label>
+                        <label><input type="checkbox"> ゆうちょ銀行</label>
+                        <label><input type="checkbox"> りそな銀行</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">振替指定日<span class="form-required">*</span></label>
+                    <input type="date" class="form-control" id="transfer-date" value="2025-04-27">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">データ形式<span class="form-required">*</span></label>
+                    <select class="form-select" id="transfer-format">
+                        <option value="zengin" selected>全銀協フォーマット</option>
+                        <option value="yucho">ゆうちょ銀行フォーマット</option>
+                    </select>
+                </div>
+                
+                <div class="summary-data">
+                    <div class="data-row">
+                        <div class="data-label">対象者数</div>
+                        <div class="data-value">508名</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">請求予定総額</div>
+                        <div class="data-value">2,743,200円</div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> データ作成後は、金融機関に提出するまで口座情報の変更に注意してください。
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="createBankTransferFile()">作成</button>
+                <button class="btn btn-danger" onclick="closeBankTransferModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：CSVデータ出力 -->
+    <div class="modal-backdrop" id="csv-export-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">CSVデータ出力</div>
+                <button class="modal-close" onclick="closeCSVExportModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">出力データ種別<span class="form-required">*</span></label>
+                    <select class="form-select" id="csv-type">
+                        <option value="all" selected>全データ</option>
+                        <option value="welfare">生活保護対象者</option>
+                        <option value="subsidy">就学援助対象者</option>
+                        <option value="allowance">児童手当からの徴収対象者</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">対象期間<span class="form-required">*</span></label>
+                    <select class="form-select" id="csv-period">
+                        <option value="2025-04" selected>2025年4月</option>
+                        <option value="2025-05">2025年5月</option>
+                        <option value="2025-06">2025年6月</option>
+                        <option value="2025-07">2025年7月</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">出力項目選択</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" checked> 個人情報（氏名、学校、学年等）</label>
+                        <label><input type="checkbox" checked> 調定金額情報</label>
+                        <label><input type="checkbox" checked> 特例情報</label>
+                        <label><input type="checkbox" checked> 口座情報（金融機関、口座番号等）</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">ファイル形式<span class="form-required">*</span></label>
+                    <select class="form-select" id="csv-format">
+                        <option value="csv" selected>CSV</option>
+                        <option value="excel">Excel</option>
+                    </select>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 出力されるデータには個人情報が含まれます。取り扱いには十分ご注意ください。
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="exportCSVFile()">出力</button>
+                <button class="btn btn-danger" onclick="closeCSVExportModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：個人詳細 -->
+    <div class="modal-backdrop" id="detail-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">請求詳細情報</div>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">対象者</label>
+                    <input type="text" class="form-control" id="detail-name" value="山田 太郎" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">所属情報</label>
+                    <input type="text" class="form-control" id="detail-school" value="文京第一小学校 3年1組" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">請求情報</label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label class="form-label">請求月</label>
+                            <input type="text" class="form-control" value="2025年4月" disabled>
+                        </div>
+                        <div class="form-col">
+                            <label class="form-label">調定額</label>
+                            <input type="text" class="form-control" value="5,600円" disabled>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">支払方法</label>
+                    <input type="text" class="form-control" value="口座振替" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">口座情報</label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label class="form-label">金融機関</label>
+                            <input type="text" class="form-control" value="三菱UFJ銀行 文京支店" disabled>
+                        </div>
+                        <div class="form-col">
+                            <label class="form-label">口座番号</label>
+                            <input type="text" class="form-control" value="*****1234" disabled>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">特例情報</label>
+                    <input type="text" class="form-control" value="なし" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">請求状態</label>
+                    <input type="text" class="form-control" value="請求済（2025/04/10処理）" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">備考</label>
+                    <textarea class="form-control" rows="3" placeholder="備考がある場合はこちらに入力してください"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="generateIndividualNotice()">納入通知書作成</button>
+                <button class="btn btn-success" onclick="closeDetailModal()">閉じる</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notifications">
+        <!-- 通知はJSで動的に追加 -->
+    </div>
+    
+    <script src="billing-processing-js.js"></script>
+</body>
+</html>

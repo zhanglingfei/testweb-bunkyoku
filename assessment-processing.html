@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文京区給食費管理システム - 調定処理</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assessment-processing-css.css">
+</head>
+<body>
+    <div class="header">
+        <h1>文京区給食費管理システム</h1>
+        <div class="user-info">
+            <span>管理者：田中 太郎</span>
+            <button class="logout-btn">ログアウト</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item"><i class="fas fa-home"></i>ホーム</a></li>
+                <li><a href="bunkyo-user-management.html" class="nav-item active"><i class="fas fa-users"></i>喫食者情報</a></li>
+                <li><a href="food-management.html" class="nav-item"><i class="fas fa-utensils"></i>食数管理</a></li>
+                <li><a href="assessment-processing.html" class="nav-item"><i class="fas fa-calculator"></i>調定処理</a></li>
+                <li><a href="billing-processing.html" class="nav-item"><i class="fas fa-file-invoice"></i>請求処理</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-file-invoice-dollar"></i>納付書作成</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-money-bill-wave"></i>給食費入金</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-hand-holding-usd"></i>給食費返金</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-exclamation-triangle"></i>未収金管理</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-file-alt"></i>帳票出力</a></li>
+                <li><a href="#" class="nav-item"><i class="fas fa-cog"></i>システム設定</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <h2 class="page-title"><i class="fas fa-calculator"></i> 調定処理</h2>
+            
+            <div class="action-bar">
+                <div class="search-container">
+                    <div class="search-field">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="名前で検索">
+                    </div>
+                    <div class="search-options">
+                        <select id="school-select">
+                            <option>全ての学校</option>
+                            <option>文京第一小学校</option>
+                            <option>文京第二小学校</option>
+                            <option>文京第三小学校</option>
+                            <option>文京第一中学校</option>
+                        </select>
+                        <select id="grade-select">
+                            <option>全ての学年</option>
+                            <option>1年</option>
+                            <option>2年</option>
+                            <option>3年</option>
+                            <option>4年</option>
+                            <option>5年</option>
+                            <option>6年</option>
+                        </select>
+                        <select id="class-select">
+                            <option>全てのクラス</option>
+                            <option>1組</option>
+                            <option>2組</option>
+                            <option>3組</option>
+                        </select>
+                        <select id="month-select">
+                            <option>2025年4月</option>
+                            <option>2025年5月</option>
+                            <option>2025年6月</option>
+                            <option>2025年7月</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-success" onclick="previewAssessment()"><i class="fas fa-calculator"></i> 事前確認</button>
+                    <button class="btn btn-primary" onclick="confirmAssessment()"><i class="fas fa-check-circle"></i> 調定確定</button>
+                    <button class="btn btn-warning"><i class="fas fa-file-export"></i> エクスポート</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">調定処理一覧</div>
+                    <div class="date-navigator">
+                        <button class="btn-icon"><i class="fas fa-angle-left"></i></button>
+                        <span class="current-date">2025年4月</span>
+                        <button class="btn-icon"><i class="fas fa-angle-right"></i></button>
+                        <button class="btn-icon" style="margin-left: 10px;"><i class="fas fa-calendar-alt"></i></button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('tab-individual')">個人別</div>
+                        <div class="tab" onclick="switchTab('tab-class')">クラス別</div>
+                        <div class="tab" onclick="switchTab('tab-grade')">学年別</div>
+                        <div class="tab" onclick="switchTab('tab-school')">学校別</div>
+                        <div class="tab" onclick="switchTab('tab-summary')">集計</div>
+                    </div>
+                    
+                    <div class="tab-content active" id="tab-individual">
+                        <div class="status-filter">
+                            <span>表示：</span>
+                            <label><input type="checkbox" checked> 調定済</label>
+                            <label><input type="checkbox" checked> 未調定</label>
+                            <span style="margin-left: 20px;">特例情報のみ表示</span>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>氏名</th>
+                                    <th>学校</th>
+                                    <th>学年・クラス</th>
+                                    <th>喫食日数</th>
+                                    <th>欠食日数</th>
+                                    <th>給食単価</th>
+                                    <th>調定額</th>
+                                    <th>特例情報</th>
+                                    <th>状態</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2025001</td>
+                                    <td>山田 太郎</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年1組</td>
+                                    <td>20</td>
+                                    <td>0</td>
+                                    <td>280円</td>
+                                    <td>5,600円</td>
+                                    <td></td>
+                                    <td><span class="status status-success">調定済</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openEditModal(2025001)"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025002</td>
+                                    <td>佐藤 一郎</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年1組</td>
+                                    <td>18</td>
+                                    <td>2</td>
+                                    <td>280円</td>
+                                    <td>5,040円</td>
+                                    <td></td>
+                                    <td><span class="status status-success">調定済</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openEditModal(2025002)"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025003</td>
+                                    <td>鈴木 花子</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年2組</td>
+                                    <td>15</td>
+                                    <td>5</td>
+                                    <td>280円</td>
+                                    <td>4,200円</td>
+                                    <td><span class="badge badge-warning">就学援助</span></td>
+                                    <td><span class="status status-warning">未調定</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openEditModal(2025003)"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025004</td>
+                                    <td>田中 次郎</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年2組</td>
+                                    <td>20</td>
+                                    <td>0</td>
+                                    <td>280円</td>
+                                    <td>5,600円</td>
+                                    <td></td>
+                                    <td><span class="status status-success">調定済</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openEditModal(2025004)"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025005</td>
+                                    <td>高橋 真理</td>
+                                    <td>文京第二小学校</td>
+                                    <td>4年1組</td>
+                                    <td>17</td>
+                                    <td>3</td>
+                                    <td>280円</td>
+                                    <td>4,760円</td>
+                                    <td><span class="badge badge-danger">生活保護</span></td>
+                                    <td><span class="status status-warning">未調定</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openEditModal(2025005)"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination">
+                            <div class="page-item"><i class="fas fa-angle-double-left"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-left"></i></div>
+                            <div class="page-item active">1</div>
+                            <div class="page-item">2</div>
+                            <div class="page-item">3</div>
+                            <div class="page-item"><i class="fas fa-angle-right"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-double-right"></i></div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="tab-class">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>学校</th>
+                                    <th>学年・クラス</th>
+                                    <th>児童・生徒数</th>
+                                    <th>総喫食日数</th>
+                                    <th>総欠食日数</th>
+                                    <th>給食単価</th>
+                                    <th>調定額合計</th>
+                                    <th>特例情報適用</th>
+                                    <th>状態</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>文京第一小学校</td>
+                                    <td>3年1組</td>
+                                    <td>28</td>
+                                    <td>532</td>
+                                    <td>28</td>
+                                    <td>280円</td>
+                                    <td>148,960円</td>
+                                    <td>2</td>
+                                    <td><span class="status status-success">調定済</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openClassDetailModal('文京第一小学校', '3年1組')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>文京第一小学校</td>
+                                    <td>3年2組</td>
+                                    <td>30</td>
+                                    <td>552</td>
+                                    <td>48</td>
+                                    <td>280円</td>
+                                    <td>154,560円</td>
+                                    <td>3</td>
+                                    <td><span class="status status-warning">未調定</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openClassDetailModal('文京第一小学校', '3年2組')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>文京第二小学校</td>
+                                    <td>4年1組</td>
+                                    <td>25</td>
+                                    <td>458</td>
+                                    <td>42</td>
+                                    <td>280円</td>
+                                    <td>128,240円</td>
+                                    <td>4</td>
+                                    <td><span class="status status-warning">未調定</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openClassDetailModal('文京第二小学校', '4年1組')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="tab-content" id="tab-grade">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>学校</th>
+                                    <th>学年</th>
+                                    <th>クラス数</th>
+                                    <th>児童・生徒数</th>
+                                    <th>総喫食日数</th>
+                                    <th>総欠食日数</th>
+                                    <th>給食単価</th>
+                                    <th>調定額合計</th>
+                                    <th>特例情報適用</th>
+                                    <th>状態</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>文京第一小学校</td>
+                                    <td>3年</td>
+                                    <td>3</td>
+                                    <td>85</td>
+                                    <td>1,584</td>
+                                    <td>116</td>
+                                    <td>280円</td>
+                                    <td>443,520円</td>
+                                    <td>5</td>
+                                    <td><span class="status status-warning">未調定</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openGradeDetailModal('文京第一小学校', '3年')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>文京第二小学校</td>
+                                    <td>4年</td>
+                                    <td>2</td>
+                                    <td>45</td>
+                                    <td>825</td>
+                                    <td>75</td>
+                                    <td>280円</td>
+                                    <td>231,000円</td>
+                                    <td>7</td>
+                                    <td><span class="status status-warning">未調定</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openGradeDetailModal('文京第二小学校', '4年')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="tab-content" id="tab-school">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>学校</th>
+                                    <th>学年数</th>
+                                    <th>クラス数</th>
+                                    <th>児童・生徒数</th>
+                                    <th>総喫食日数</th>
+                                    <th>総欠食日数</th>
+                                    <th>調定額合計</th>
+                                    <th>特例情報適用</th>
+                                    <th>状態</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>文京第一小学校</td>
+                                    <td>6</td>
+                                    <td>18</td>
+                                    <td>512</td>
+                                    <td>9,745</td>
+                                    <td>495</td>
+                                    <td>2,728,600円</td>
+                                    <td>25</td>
+                                    <td><span class="status status-warning">未調定</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openSchoolDetailModal('文京第一小学校')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>文京第二小学校</td>
+                                    <td>6</td>
+                                    <td>12</td>
+                                    <td>350</td>
+                                    <td>6,580</td>
+                                    <td>420</td>
+                                    <td>1,842,400円</td>
+                                    <td>18</td>
+                                    <td><span class="status status-warning">未調定</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openSchoolDetailModal('文京第二小学校')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>文京第三小学校</td>
+                                    <td>6</td>
+                                    <td>15</td>
+                                    <td>425</td>
+                                    <td>8,075</td>
+                                    <td>425</td>
+                                    <td>2,261,000円</td>
+                                    <td>22</td>
+                                    <td><span class="status status-warning">未調定</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openSchoolDetailModal('文京第三小学校')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>文京第一中学校</td>
+                                    <td>3</td>
+                                    <td>9</td>
+                                    <td>320</td>
+                                    <td>6,080</td>
+                                    <td>320</td>
+                                    <td>1,702,400円</td>
+                                    <td>15</td>
+                                    <td><span class="status status-warning">未調定</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openSchoolDetailModal('文京第一中学校')"><i class="fas fa-search"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="tab-content" id="tab-summary">
+                        <div class="summary-controls">
+                            <div class="form-group">
+                                <label class="form-label">調定期間</label>
+                                <select class="form-select">
+                                    <option value="month" selected>月次</option>
+                                    <option value="term">学期</option>
+                                    <option value="year">年次</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">表示項目</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" checked> 調定済</label>
+                                    <label><input type="checkbox" checked> 未調定</label>
+                                    <label><input type="checkbox" checked> 特例情報</label>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary">集計</button>
+                            <button class="btn btn-warning"><i class="fas fa-file-export"></i> エクスポート</button>
+                        </div>
+                        
+                        <div class="summary-chart">
+                            <h3>2025年4月 調定処理状況</h3>
+                            <div class="chart-container">
+                                <div class="placeholder-chart">
+                                    <div class="bar-container">
+                                        <div class="school-label">文京第一小学校</div>
+                                        <div class="bar-group">
+                                            <div class="bar bar-eating" style="width: 80%;">調定済: 2,182,880円</div>
+                                            <div class="bar bar-absent-subsidy" style="width: 20%;">未調定: 545,720円</div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="school-label">文京第二小学校</div>
+                                        <div class="bar-group">
+                                            <div class="bar bar-eating" style="width: 65%;">調定済: 1,197,560円</div>
+                                            <div class="bar bar-absent-subsidy" style="width: 35%;">未調定: 644,840円</div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="school-label">文京第三小学校</div>
+                                        <div class="bar-group">
+                                            <div class="bar bar-eating" style="width: 75%;">調定済: 1,695,750円</div>
+                                            <div class="bar bar-absent-subsidy" style="width: 25%;">未調定: 565,250円</div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="school-label">文京第一中学校</div>
+                                        <div class="bar-group">
+                                            <div class="bar bar-eating" style="width: 70%;">調定済: 1,191,680円</div>
+                                            <div class="bar bar-absent-subsidy" style="width: 30%;">未調定: 510,720円</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <table class="summary-table">
+                            <thead>
+                                <tr>
+                                    <th>学校</th>
+                                    <th>児童・生徒数</th>
+                                    <th>調定済金額</th>
+                                    <th>未調定金額</th>
+                                    <th>特例適用金額</th>
+                                    <th>合計</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>文京第一小学校</td>
+                                    <td>512</td>
+                                    <td>2,182,880円</td>
+                                    <td>545,720円</td>
+                                    <td>285,600円</td>
+                                    <td>2,728,600円</td>
+                                </tr>
+                                <tr>
+                                    <td>文京第二小学校</td>
+                                    <td>350</td>
+                                    <td>1,197,560円</td>
+                                    <td>644,840円</td>
+                                    <td>201,600円</td>
+                                    <td>1,842,400円</td>
+                                </tr>
+                                <tr>
+                                    <td>文京第三小学校</td>
+                                    <td>425</td>
+                                    <td>1,695,750円</td>
+                                    <td>565,250円</td>
+                                    <td>246,400円</td>
+                                    <td>2,261,000円</td>
+                                </tr>
+                                <tr>
+                                    <td>文京第一中学校</td>
+                                    <td>320</td>
+                                    <td>1,191,680円</td>
+                                    <td>510,720円</td>
+                                    <td>168,000円</td>
+                                    <td>1,702,400円</td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td>合計</td>
+                                    <td>1,607</td>
+                                    <td>6,267,870円</td>
+                                    <td>2,266,530円</td>
+                                    <td>901,600円</td>
+                                    <td>8,534,400円</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：調定額編集 -->
+    <div class="modal-backdrop" id="edit-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">調定額編集</div>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">対象者</label>
+                    <input type="text" class="form-control" id="edit-name" value="山田 太郎" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">所属情報</label>
+                    <input type="text" class="form-control" id="edit-school" value="文京第一小学校 3年1組" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">喫食情報</label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label class="form-label">喫食日数</label>
+                            <input type="number" class="form-control" id="edit-eating-days" value="20">
+                        </div>
+                        <div class="form-col">
+                            <label class="form-label">欠食日数</label>
+                            <input type="number" class="form-control" id="edit-absent-days" value="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">給食単価<span class="form-required">*</span></label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <input type="number" class="form-control" id="edit-price" value="280">
+                            <span class="form-text">円</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">特例情報</label>
+                    <select class="form-select" id="edit-exemption">
+                        <option value="none" selected>なし</option>
+                        <option value="subsidy">就学援助</option>
+                        <option value="welfare">生活保護</option>
+                        <option value="allowance">児童手当からの徴収</option>
+                        <option value="other">その他減免措置</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="exemption-detail" style="display: none;">
+                    <label class="form-label">減免額</label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <input type="number" class="form-control" id="edit-exemption-amount" value="0">
+                            <span class="form-text">円</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">調定額</label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <input type="number" class="form-control" id="edit-total-amount" value="5600" disabled>
+                            <span class="form-text">円</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">備考</label>
+                    <textarea class="form-control" id="edit-note" rows="3" placeholder="備考がある場合はこちらに入力してください"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="saveEdit()">保存</button>
+                <button class="btn btn-danger" onclick="closeEditModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：事前確認 -->
+    <div class="modal-backdrop" id="preview-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">調定事前確認</div>
+                <button class="modal-close" onclick="closePreviewModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 調定確定前の最終確認です。内容を確認してから「確認完了」ボタンを押してください。
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">確認対象</label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <select class="form-select" id="preview-target">
+                                <option value="all" selected>全体</option>
+                                <option value="school">学校別</option>
+                                <option value="grade">学年別</option>
+                                <option value="class">クラス別</option>
+                            </select>
+                        </div>
+                        <div class="form-col" id="preview-school-container" style="display: none;">
+                            <select class="form-select" id="preview-school">
+                                <option>文京第一小学校</option>
+                                <option>文京第二小学校</option>
+                                <option>文京第三小学校</option>
+                                <option>文京第一中学校</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="summary-data">
+                    <div class="data-row">
+                        <div class="data-label">調定期間</div>
+                        <div class="data-value">2025年4月</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">対象者数</div>
+                        <div class="data-value">1,607名</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">総喫食日数</div>
+                        <div class="data-value">30,480日</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">総調定予定額</div>
+                        <div class="data-value">8,534,400円</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">特例適用件数</div>
+                        <div class="data-value">80件</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">特例適用金額</div>
+                        <div class="data-value">901,600円</div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> 調定確定後も修正は可能ですが、請求処理が始まっている場合は影響があります。
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="closePreviewModal()">確認完了</button>
+                <button class="btn btn-primary" onclick="closePreviewModal()">戻る</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：調定確定 -->
+    <div class="modal-backdrop" id="confirm-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">調定確定処理</div>
+                <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> この操作により選択した対象範囲の調定額が確定されます。確定後も修正は可能ですが、請求処理が始まっている場合は影響があります。
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">確定対象範囲<span class="form-required">*</span></label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <select class="form-select" id="confirm-target">
+                                <option value="all" selected>全体</option>
+                                <option value="school">学校別</option>
+                                <option value="grade">学年別</option>
+                                <option value="class">クラス別</option>
+                                <option value="individual">個人別</option>
+                            </select>
+                        </div>
+                        <div class="form-col" id="confirm-detail-container" style="display: none;">
+                            <select class="form-select" id="confirm-detail">
+                                <option>文京第一小学校</option>
+                                <option>文京第二小学校</option>
+                                <option>文京第三小学校</option>
+                                <option>文京第一中学校</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">確定期間<span class="form-required">*</span></label>
+                    <select class="form-select" id="confirm-period">
+                        <option value="2025-04" selected>2025年4月</option>
+                        <option value="2025-05">2025年5月</option>
+                        <option value="2025-06">2025年6月</option>
+                        <option value="2025-07">2025年7月</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">備考</label>
+                    <textarea class="form-control" rows="3" placeholder="確定に関する備考があれば入力してください"></textarea>
+                </div>
+                
+                <div class="confirmation-check">
+                    <label><input type="checkbox" id="confirm-check"> 内容を確認し、調定額を確定します</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" id="confirm-button" disabled>確定</button>
+                <button class="btn btn-danger" onclick="closeConfirmModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notifications">
+        <!-- 通知はJSで動的に追加 -->
+    </div>
+    
+    <script src="assessment-processing-js.js"></script>
+</body>
+</html>
