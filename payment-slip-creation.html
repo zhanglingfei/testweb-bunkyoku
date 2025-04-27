@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文京区給食費管理システム - 納付書作成</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="food-management-css.css">
+</head>
+<body>
+    <div class="header">
+        <h1>文京区給食費管理システム</h1>
+        <div class="user-info">
+            <span>管理者：田中 太郎</span>
+            <button class="logout-btn">ログアウト</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item"><i class="fas fa-home"></i>ホーム</a></li>
+                <li><a href="bunkyo-user-management.html" class="nav-item"><i class="fas fa-users"></i>喫食者情報</a></li>
+                <li><a href="food-management.html" class="nav-item"><i class="fas fa-utensils"></i>食数管理</a></li>
+                <li><a href="assessment-processing.html" class="nav-item"><i class="fas fa-calculator"></i>調定処理</a></li>
+                <li><a href="billing-processing.html" class="nav-item"><i class="fas fa-file-invoice"></i>請求処理</a></li>
+                <li><a href="payment-slip-creation.html" class="nav-item active"><i class="fas fa-file-invoice-dollar"></i>納付書作成</a></li>
+                <li><a href="meal-fee-deposit.html" class="nav-item"><i class="fas fa-money-bill-wave"></i>給食費入金</a></li>
+                <li><a href="meal-fee-refund.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i>給食費返金</a></li>
+                <li><a href="accounts-receivable.html" class="nav-item"><i class="fas fa-exclamation-triangle"></i>未収金管理</a></li>
+                <li><a href="report-output.html" class="nav-item"><i class="fas fa-file-alt"></i>帳票出力</a></li>
+                <li><a href="system-settings.html" class="nav-item"><i class="fas fa-cog"></i>システム設定</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <h2 class="page-title"><i class="fas fa-file-invoice-dollar"></i> 納付書作成</h2>
+            
+            <div class="action-bar">
+                <div class="search-container">
+                    <div class="search-field">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="名前で検索">
+                    </div>
+                    <div class="search-options">
+                        <select id="school-select">
+                            <option>全ての学校</option>
+                            <option>文京第一小学校</option>
+                            <option>文京第二小学校</option>
+                            <option>文京第三小学校</option>
+                            <option>文京第一中学校</option>
+                        </select>
+                        <select id="grade-select">
+                            <option>全ての学年</option>
+                            <option>1年</option>
+                            <option>2年</option>
+                            <option>3年</option>
+                            <option>4年</option>
+                            <option>5年</option>
+                            <option>6年</option>
+                        </select>
+                        <select id="class-select">
+                            <option>全てのクラス</option>
+                            <option>1組</option>
+                            <option>2組</option>
+                            <option>3組</option>
+                        </select>
+                        <select id="month-select">
+                            <option>全ての月</option>
+                            <option>4月</option>
+                            <option>5月</option>
+                            <option>6月</option>
+                            <option>7月</option>
+                            <option>8月</option>
+                            <option>9月</option>
+                            <option>10月</option>
+                            <option>11月</option>
+                            <option>12月</option>
+                            <option>1月</option>
+                            <option>2月</option>
+                            <option>3月</option>
+                        </select>
+                        <select id="payment-status-select">
+                            <option>全ての状態</option>
+                            <option>未納</option>
+                            <option>一部納付</option>
+                            <option>完納</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="btn-print-all"><i class="fas fa-print"></i> 一括印刷</button>
+                    <button class="btn btn-success" id="btn-issue-date"><i class="fas fa-calendar-alt"></i> 納付期限設定</button>
+                    <button class="btn btn-warning"><i class="fas fa-file-export"></i> エクスポート</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">納付書作成</div>
+                    <div class="card-tools">
+                        <button class="btn btn-primary" id="btn-filter"><i class="fas fa-filter"></i> 絞り込み</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('tab-payment-slip')">未納者一覧</div>
+                        <div class="tab" onclick="switchTab('tab-split-payment')">分割納付管理</div>
+                        <div class="tab" onclick="switchTab('tab-history')">発行履歴</div>
+                    </div>
+                    
+                    <!-- 未納者一覧タブ -->
+                    <div class="tab-content active" id="tab-payment-slip">
+                        <div class="status-filter">
+                            <span>表示フィルター：</span>
+                            <label><input type="checkbox" checked> 口座未登録者</label>
+                            <label><input type="checkbox" checked> 口座振替不能者</label>
+                            <label><input type="checkbox" checked> 一部納付者</label>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="select-all"></th>
+                                    <th>ID</th>
+                                    <th>氏名</th>
+                                    <th>学校</th>
+                                    <th>学年・クラス</th>
+                                    <th>支払い方法</th>
+                                    <th>未納月</th>
+                                    <th>未納金額</th>
+                                    <th>最終納付日</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox" class="row-select"></td>
+                                    <td>2025001</td>
+                                    <td>山田 太郎</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年1組</td>
+                                    <td><span class="badge badge-warning">納付書</span></td>
+                                    <td>4月, 5月</td>
+                                    <td>10,600円</td>
+                                    <td>-</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openPaymentSlipModal('2025001')"><i class="fas fa-file-invoice"></i></button>
+                                            <button class="btn-icon" onclick="openSplitPaymentModal('2025001')"><i class="fas fa-money-bill-wave"></i></button>
+                                            <button class="btn-icon" onclick="openHistoryModal('2025001')"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" class="row-select"></td>
+                                    <td>2025003</td>
+                                    <td>鈴木 花子</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年2組</td>
+                                    <td><span class="badge badge-primary">口座振替</span></td>
+                                    <td>4月</td>
+                                    <td>5,300円</td>
+                                    <td>2025/04/15</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openPaymentSlipModal('2025003')"><i class="fas fa-file-invoice"></i></button>
+                                            <button class="btn-icon" onclick="openSplitPaymentModal('2025003')"><i class="fas fa-money-bill-wave"></i></button>
+                                            <button class="btn-icon" onclick="openHistoryModal('2025003')"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" class="row-select"></td>
+                                    <td>2025005</td>
+                                    <td>高橋 真理</td>
+                                    <td>文京第二小学校</td>
+                                    <td>4年1組</td>
+                                    <td><span class="badge badge-warning">納付書</span></td>
+                                    <td>4月, 5月, 6月</td>
+                                    <td>15,900円</td>
+                                    <td>-</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openPaymentSlipModal('2025005')"><i class="fas fa-file-invoice"></i></button>
+                                            <button class="btn-icon" onclick="openSplitPaymentModal('2025005')"><i class="fas fa-money-bill-wave"></i></button>
+                                            <button class="btn-icon" onclick="openHistoryModal('2025005')"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" class="row-select"></td>
+                                    <td>2025008</td>
+                                    <td>佐々木 健太</td>
+                                    <td>文京第三小学校</td>
+                                    <td>2年2組</td>
+                                    <td><span class="badge badge-primary">口座振替</span></td>
+                                    <td>5月, 6月</td>
+                                    <td>10,600円</td>
+                                    <td>2025/04/30</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openPaymentSlipModal('2025008')"><i class="fas fa-file-invoice"></i></button>
+                                            <button class="btn-icon" onclick="openSplitPaymentModal('2025008')"><i class="fas fa-money-bill-wave"></i></button>
+                                            <button class="btn-icon" onclick="openHistoryModal('2025008')"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" class="row-select"></td>
+                                    <td>2025010</td>
+                                    <td>伊藤 さくら</td>
+                                    <td>文京第一中学校</td>
+                                    <td>1年3組</td>
+                                    <td><span class="badge badge-warning">納付書</span></td>
+                                    <td>4月, 5月, 6月</td>
+                                    <td>18,900円</td>
+                                    <td>-</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openPaymentSlipModal('2025010')"><i class="fas fa-file-invoice"></i></button>
+                                            <button class="btn-icon" onclick="openSplitPaymentModal('2025010')"><i class="fas fa-money-bill-wave"></i></button>
+                                            <button class="btn-icon" onclick="openHistoryModal('2025010')"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination">
+                            <div class="page-item"><i class="fas fa-angle-double-left"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-left"></i></div>
+                            <div class="page-item active">1</div>
+                            <div class="page-item">2</div>
+                            <div class="page-item">3</div>
+                            <div class="page-item"><i class="fas fa-angle-right"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-double-right"></i></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 分割納付管理タブ -->
+                    <div class="tab-content" id="tab-split-payment">
+                        <div class="status-filter">
+                            <span>表示フィルター：</span>
+                            <label><input type="checkbox" checked> 分割納付中</label>
+                            <label><input type="checkbox" checked> 延滞あり</label>
+                            <label><input type="checkbox" checked> 完了</label>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>氏名</th>
+                                    <th>学校</th>
+                                    <th>学年・クラス</th>
+                                    <th>分割総額</th>
+                                    <th>残額</th>
+                                    <th>分割回数</th>
+                                    <th>次回納付期限</th>
+                                    <th>状況</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2025003</td>
+                                    <td>鈴木 花子</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年2組</td>
+                                    <td>15,900円</td>
+                                    <td>10,600円</td>
+                                    <td>3回中1回完了</td>
+                                    <td>2025/07/31</td>
+                                    <td><span class="status status-success">分割納付中</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openSplitDetailModal('2025003')"><i class="fas fa-info-circle"></i></button>
+                                            <button class="btn-icon" onclick="openSplitEditModal('2025003')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon" onclick="printSplitPaymentSlip('2025003')"><i class="fas fa-print"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025008</td>
+                                    <td>佐々木 健太</td>
+                                    <td>文京第三小学校</td>
+                                    <td>2年2組</td>
+                                    <td>21,200円</td>
+                                    <td>15,900円</td>
+                                    <td>4回中1回完了</td>
+                                    <td>2025/06/30</td>
+                                    <td><span class="status status-warning">延滞あり</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openSplitDetailModal('2025008')"><i class="fas fa-info-circle"></i></button>
+                                            <button class="btn-icon" onclick="openSplitEditModal('2025008')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon" onclick="printSplitPaymentSlip('2025008')"><i class="fas fa-print"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025015</td>
+                                    <td>中村 大輔</td>
+                                    <td>文京第一中学校</td>
+                                    <td>2年1組</td>
+                                    <td>12,600円</td>
+                                    <td>0円</td>
+                                    <td>3回中3回完了</td>
+                                    <td>完了</td>
+                                    <td><span class="status status-info">完了</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openSplitDetailModal('2025015')"><i class="fas fa-info-circle"></i></button>
+                                            <button class="btn-icon" onclick="openSplitHistoryModal('2025015')"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination">
+                            <div class="page-item"><i class="fas fa-angle-double-left"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-left"></i></div>
+                            <div class="page-item active">1</div>
+                            <div class="page-item">2</div>
+                            <div class="page-item"><i class="fas fa-angle-right"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-double-right"></i></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 発行履歴タブ -->
+                    <div class="tab-content" id="tab-history">
+                        <div class="form-row" style="margin-bottom: 1.5rem;">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label class="form-label">発行日期間</label>
+                                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                        <input type="date" class="form-control" placeholder="開始日">
+                                        <span>〜</span>
+                                        <input type="date" class="form-control" placeholder="終了日">
+                                        <button class="btn btn-primary"><i class="fas fa-search"></i> 検索</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>発行日</th>
+                                    <th>納付書番号</th>
+                                    <th>氏名</th>
+                                    <th>学校</th>
+                                    <th>学年・クラス</th>
+                                    <th>金額</th>
+                                    <th>納付期限</th>
+                                    <th>種類</th>
+                                    <th>状態</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2025/06/15</td>
+                                    <td>2025060001</td>
+                                    <td>山田 太郎</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年1組</td>
+                                    <td>10,600円</td>
+                                    <td>2025/06/30</td>
+                                    <td>通常</td>
+                                    <td><span class="status status-warning">未納</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="reprintPaymentSlip('2025060001')"><i class="fas fa-print"></i></button>
+                                            <button class="btn-icon" onclick="voidPaymentSlip('2025060001')"><i class="fas fa-ban"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025/06/15</td>
+                                    <td>2025060002</td>
+                                    <td>鈴木 花子</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年2組</td>
+                                    <td>5,300円</td>
+                                    <td>2025/07/31</td>
+                                    <td>分割（1/3）</td>
+                                    <td><span class="status status-success">納付済</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="viewPaymentDetail('2025060002')"><i class="fas fa-info-circle"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025/06/10</td>
+                                    <td>2025060003</td>
+                                    <td>高橋 真理</td>
+                                    <td>文京第二小学校</td>
+                                    <td>4年1組</td>
+                                    <td>15,900円</td>
+                                    <td>2025/06/30</td>
+                                    <td>通常</td>
+                                    <td><span class="status status-warning">未納</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="reprintPaymentSlip('2025060003')"><i class="fas fa-print"></i></button>
+                                            <button class="btn-icon" onclick="voidPaymentSlip('2025060003')"><i class="fas fa-ban"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025/06/05</td>
+                                    <td>2025060004</td>
+                                    <td>佐々木 健太</td>
+                                    <td>文京第三小学校</td>
+                                    <td>2年2組</td>
+                                    <td>5,300円</td>
+                                    <td>2025/06/30</td>
+                                    <td>分割（1/4）</td>
+                                    <td><span class="status status-warning">未納</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="reprintPaymentSlip('2025060004')"><i class="fas fa-print"></i></button>
+                                            <button class="btn-icon" onclick="voidPaymentSlip('2025060004')"><i class="fas fa-ban"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025/06/01</td>
+                                    <td>2025060005</td>
+                                    <td>伊藤 さくら</td>
+                                    <td>文京第一中学校</td>
+                                    <td>1年3組</td>
+                                    <td>18,900円</td>
+                                    <td>2025/06/30</td>
+                                    <td>通常</td>
+                                    <td><span class="status status-warning">未納</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="reprintPaymentSlip('2025060005')"><i class="fas fa-print"></i></button>
+                                            <button class="btn-icon" onclick="voidPaymentSlip('2025060005')"><i class="fas fa-ban"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination">
+                            <div class="page-item"><i class="fas fa-angle-double-left"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-left"></i></div>
+                            <div class="page-item active">1</div>
+                            <div class="page-item">2</div>
+                            <div class="page-item">3</div>
+                            <div class="page-item"><i class="fas fa-angle-right"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-double-right"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：納付書発行 -->
+    <div class="modal-backdrop" id="payment-slip-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">納付書発行</div>
+                <button class="modal-close" onclick="closePaymentSlipModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">対象者</label>
+                    <input type="text" class="form-control" id="payment-slip-name" value="山田 太郎" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">学校・学年・クラス</label>
+                    <input type="text" class="form-control" id="payment-slip-school" value="文京第一小学校 3年1組" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">未納期間<span class="form-required">*</span></label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        <label style="display: flex; align-items: center; padding: 0.5rem; border: 1px solid #e0e0e0; border-radius: 4px; background: #f5f5f5;">
+                            <input type="checkbox" checked style="margin-right: 0.5rem;"> 4月分（5,300円）
+                        </label>
+                        <label style="display: flex; align-items: center; padding: 0.5rem; border: 1px solid #e0e0e0; border-radius: 4px; background: #f5f5f5;">
+                            <input type="checkbox" checked style="margin-right: 0.5rem;"> 5月分（5,300円）
+                        </label>
+                        <label style="display: flex; align-items: center; padding: 0.5rem; border: 1px solid #e0e0e0; border-radius: 4px; background: #f5f5f5;">
+                            <input type="checkbox" style="margin-right: 0.5rem;"> 6月分（5,300円）
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">納付期限<span class="form-required">*</span></label>
+                    <input type="date" class="form-control" id="payment-slip-due-date" value="2025-06-30">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">発行種別<span class="form-required">*</span></label>
+                    <div style="display: flex; gap: 1rem;">
+                        <label style="display: flex; align-items: center;">
+                            <input type="radio" name="slip-type" checked style="margin-right: 0.5rem;"> 通常納付書
+                        </label>
+                        <label style="display: flex; align-items: center;">
+                            <input type="radio" name="slip-type" style="margin-right: 0.5rem;"> 分割納付書
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group split-payment-section" style="display: none;">
+                    <label class="form-label">分割回数<span class="form-required">*</span></label>
+                    <select class="form-select" id="split-payment-count">
+                        <option>2回</option>
+                        <option>3回</option>
+                        <option>4回</option>
+                        <option>5回</option>
+                        <option>6回</option>
+                    </select>
+                </div>
+                
+                <div class="form-group split-payment-section" style="display: none;">
+                    <label class="form-label">分割予定<span class="form-required">*</span></label>
+                    <div class="split-payment-schedule">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <label class="form-label">1回目</label>
+                                <input type="date" class="form-control" value="2025-07-31">
+                            </div>
+                            <div class="form-col">
+                                <label class="form-label">金額</label>
+                                <input type="text" class="form-control" value="3,500円">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <label class="form-label">2回目</label>
+                                <input type="date" class="form-control" value="2025-08-31">
+                            </div>
+                            <div class="form-col">
+                                <label class="form-label">金額</label>
+                                <input type="text" class="form-control" value="3,500円">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <label class="form-label">3回目</label>
+                                <input type="date" class="form-control" value="2025-09-30">
+                            </div>
+                            <div class="form-col">
+                                <label class="form-label">金額</label>
+                                <input type="text" class="form-control" value="3,600円">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">備考</label>
+                    <textarea class="form-control" rows="2" placeholder="備考がある場合はこちらに入力してください"></textarea>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 納付書を発行すると、選択した月分の給食費が納付書払いとして設定されます。
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="issuePaymentSlip()"><i class="fas fa-print"></i> 納付書発行</button>
+                <button class="btn btn-danger" onclick="closePaymentSlipModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：分割納付設定 -->
+    <div class="modal-backdrop" id="split-payment-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">分割納付設定</div>
+                <button class="modal-close" onclick="closeSplitPaymentModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">対象者</label>
+                    <input type="text" class="form-control" id="split-payment-name" value="山田 太郎" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">学校・学年・クラス</label>
+                    <input type="text" class="form-control" id="split-payment-school" value="文京第一小学校 3年1組" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">未納総額</label>
+                    <input type="text" class="form-control" id="split-payment-total" value="10,600円" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">分割回数<span class="form-required">*</span></label>
+                    <select class="form-select" id="split-count">
+                        <option>2回</option>
+                        <option selected>3回</option>
+                        <option>4回</option>
+                        <option>5回</option>
+                        <option>6回</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">分割方法<span class="form-required">*</span></label>
+                    <div style="display: flex; gap: 1rem;">
+                        <label style="display: flex; align-items: center;">
+                            <input type="radio" name="split-method" checked style="margin-right: 0.5rem;"> 均等分割
+                        </label>
+                        <label style="display: flex; align-items: center;">
+                            <input type="radio" name="split-method" style="margin-right: 0.5rem;"> 任意分割
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">分割予定<span class="form-required">*</span></label>
+                    <div class="split-schedule">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <label class="form-label">1回目</label>
+                                <input type="date" class="form-control" value="2025-07-31">
+                            </div>
+                            <div class="form-col">
+                                <label class="form-label">金額</label>
+                                <input type="text" class="form-control" value="3,500円">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <label class="form-label">2回目</label>
+                                <input type="date" class="form-control" value="2025-08-31">
+                            </div>
+                            <div class="form-col">
+                                <label class="form-label">金額</label>
+                                <input type="text" class="form-control" value="3,500円">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <label class="form-label">3回目</label>
+                                <input type="date" class="form-control" value="2025-09-30">
+                            </div>
+                            <div class="form-col">
+                                <label class="form-label">金額</label>
+                                <input type="text" class="form-control" value="3,600円">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">備考</label>
+                    <textarea class="form-control" rows="2" placeholder="備考がある場合はこちらに入力してください"></textarea>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 分割納付設定を保存すると、分割納付誓約書を発行できます。
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveSplitPaymentAndPrint()"><i class="fas fa-save"></i> 保存して誓約書発行</button>
+                <button class="btn btn-success" onclick="saveSplitPayment()"><i class="fas fa-save"></i> 保存</button>
+                <button class="btn btn-danger" onclick="closeSplitPaymentModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：納付期限一括設定 -->
+    <div class="modal-backdrop" id="due-date-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">納付期限一括設定</div>
+                <button class="modal-close" onclick="closeDueDateModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">納付期限<span class="form-required">*</span></label>
+                    <input type="date" class="form-control" id="bulk-due-date" value="2025-07-31">
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> この設定は、これから発行する納付書に適用されます。既に発行済みの納付書には影響しません。
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="saveDueDate()">保存</button>
+                <button class="btn btn-danger" onclick="closeDueDateModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notifications">
+        <!-- 通知が表示される領域 -->
+    </div>
+    
+    <script src="payment-slip-creation.js"></script>
+</body>
+</html>

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文京区給食費管理システム - 帳票出力</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="report-output-css.css">
+</head>
+<body>
+    <div class="header">
+        <h1>文京区給食費管理システム</h1>
+        <div class="user-info">
+            <span>管理者：田中 太郎</span>
+            <button class="logout-btn">ログアウト</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item"><i class="fas fa-home"></i>ホーム</a></li>
+                <li><a href="bunkyo-user-management.html" class="nav-item active"><i class="fas fa-users"></i>喫食者情報</a></li>
+                <li><a href="food-management.html" class="nav-item"><i class="fas fa-utensils"></i>食数管理</a></li>
+                <li><a href="assessment-processing.html" class="nav-item"><i class="fas fa-calculator"></i>調定処理</a></li>
+                <li><a href="billing-processing.html" class="nav-item"><i class="fas fa-file-invoice"></i>請求処理</a></li>
+                <li><a href="payment-slip-creation.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i>納付書作成</a></li>
+                <li><a href="meal-fee-deposit.html" class="nav-item"><i class="fas fa-money-bill-wave"></i>給食費入金</a></li>
+                <li><a href="meal-fee-refund.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i>給食費返金</a></li>
+                <li><a href="accounts-receivable.html" class="nav-item"><i class="fas fa-exclamation-triangle"></i>未収金管理</a></li>
+                <li><a href="report-output.html" class="nav-item"><i class="fas fa-file-alt"></i>帳票出力</a></li>
+                <li><a href="system-settings.html" class="nav-item"><i class="fas fa-cog"></i>システム設定</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <h2 class="page-title"><i class="fas fa-file-alt"></i> 帳票出力</h2>
+            
+            <div class="action-bar">
+                <div class="search-container">
+                    <div class="search-options">
+                        <select id="year-select">
+                            <option>2025年度</option>
+                            <option>2024年度</option>
+                            <option>2023年度</option>
+                        </select>
+                        <select id="month-select">
+                            <option>全期間</option>
+                            <option>4月</option>
+                            <option>5月</option>
+                            <option>6月</option>
+                            <option>7月</option>
+                            <option>8月</option>
+                            <option>9月</option>
+                            <option>10月</option>
+                            <option>11月</option>
+                            <option>12月</option>
+                            <option>1月</option>
+                            <option>2月</option>
+                            <option>3月</option>
+                        </select>
+                        <select id="format-select">
+                            <option>PDF形式</option>
+                            <option>Excel形式</option>
+                            <option>CSV形式</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="previewReport()"><i class="fas fa-eye"></i> プレビュー</button>
+                    <button class="btn btn-success" onclick="exportReport()"><i class="fas fa-file-export"></i> 出力</button>
+                    <button class="btn btn-warning"><i class="fas fa-cog"></i> 帳票設定</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">帳票出力</div>
+                    <div class="date-navigator">
+                        <button class="btn-icon"><i class="fas fa-angle-left"></i></button>
+                        <span class="current-date">2025年4月</span>
+                        <button class="btn-icon"><i class="fas fa-angle-right"></i></button>
+                        <button class="btn-icon" style="margin-left: 10px;"><i class="fas fa-calendar-alt"></i></button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('tab-notification')">通知書</div>
+                        <div class="tab" onclick="switchTab('tab-lists')">名簿・一覧</div>
+                        <div class="tab" onclick="switchTab('tab-finance')">収納状況</div>
+                        <div class="tab" onclick="switchTab('tab-delinquent')">未収金関連</div>
+                        <div class="tab" onclick="switchTab('tab-statistics')">統計資料</div>
+                    </div>
+                    
+                    <div class="tab-content active" id="tab-notification">
+                        <div class="report-grid">
+                            <div class="report-item" onclick="selectReport('fee-notification')">
+                                <div class="report-icon"><i class="fas fa-file-invoice"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">給食費納入通知書</div>
+                                    <div class="report-desc">年度当初に対象者へ通知する給食費納入のお知らせ</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('fee-change')">
+                                <div class="report-icon"><i class="fas fa-exchange-alt"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">給食費納入額変更通知書</div>
+                                    <div class="report-desc">特例情報変更等による納入額変更の通知</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('fee-credit')">
+                                <div class="report-icon"><i class="fas fa-sync-alt"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">給食費充当通知書</div>
+                                    <div class="report-desc">過誤納金を以降の給食費に充当した場合の通知</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('fee-refund')">
+                                <div class="report-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">給食費還付決定通知書</div>
+                                    <div class="report-desc">特例情報変更等による給食費還付の通知</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('reminder')">
+                                <div class="report-icon"><i class="fas fa-bell"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">督促状</div>
+                                    <div class="report-desc">期限内に給食費が納付されない場合に送付</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('demand')">
+                                <div class="report-icon"><i class="fas fa-exclamation-circle"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">催告書</div>
+                                    <div class="report-desc">督促状の期限を過ぎても納付されない場合に送付</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('installment-agreement')">
+                                <div class="report-icon"><i class="fas fa-file-signature"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">分割納付誓約書</div>
+                                    <div class="report-desc">給食費の未納者に対し、分割納付を認める場合に作成</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="tab-lists">
+                        <div class="report-grid">
+                            <div class="report-item" onclick="selectReport('student-list')">
+                                <div class="report-icon"><i class="fas fa-list-ul"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">学校学年別対象者一覧</div>
+                                    <div class="report-desc">学校、学年別に喫食対象者の一覧を出力</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('meal-status')">
+                                <div class="report-icon"><i class="fas fa-utensils"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">給食実施（喫食）状況表</div>
+                                    <div class="report-desc">喫食対象者の喫食状況について出力</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('bank-transfer-fail')">
+                                <div class="report-icon"><i class="fas fa-ban"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">口座振替不能者一覧</div>
+                                    <div class="report-desc">口座振替データに基づく振替不能者の一覧</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('welfare-list')">
+                                <div class="report-icon"><i class="fas fa-hand-holding-heart"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">生活保護認定者給食費一覧</div>
+                                    <div class="report-desc">生活保護対象者の給食費の調定・納付状況一覧</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('subsidy-list')">
+                                <div class="report-icon"><i class="fas fa-graduation-cap"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">就学援助認定者給食費一覧</div>
+                                    <div class="report-desc">就学援助対象者の給食費の調定・納付状況一覧</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('childcare-allowance')">
+                                <div class="report-icon"><i class="fas fa-child"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">児童手当から徴収した給食費一覧</div>
+                                    <div class="report-desc">児童手当から徴収した給食費の調定・納付状況一覧</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="tab-finance">
+                        <div class="report-grid">
+                            <div class="report-item" onclick="selectReport('daily-report')">
+                                <div class="report-icon"><i class="fas fa-calendar-day"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">日計表</div>
+                                    <div class="report-desc">日ごとの収納状況（口座振替・納付書・現金）について出力</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('monthly-report')">
+                                <div class="report-icon"><i class="fas fa-calendar-alt"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">月計表</div>
+                                    <div class="report-desc">月ごとの収納状況（口座振替・納付書・現金）について出力</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('monthly-summary')">
+                                <div class="report-icon"><i class="fas fa-chart-bar"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">収納状況集計表（月別）</div>
+                                    <div class="report-desc">現年度分について、月別に調定額、収入額、還付額、未納額を出力</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('yearly-summary')">
+                                <div class="report-icon"><i class="fas fa-chart-line"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">年度別集計表</div>
+                                    <div class="report-desc">年度別（現年度分、過年度分）の調定額、収入額、還付額等を出力</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="tab-delinquent">
+                        <div class="report-grid">
+                            <div class="report-item" onclick="selectReport('delinquent-list')">
+                                <div class="report-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">未収金対象者一覧表</div>
+                                    <div class="report-desc">未収金対象者の一覧を出力</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('bad-debt-list')">
+                                <div class="report-icon"><i class="fas fa-trash-alt"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">不納欠損一覧表</div>
+                                    <div class="report-desc">時効を過ぎて、不能欠損処理を行う給食費について、一覧を出力</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="tab-statistics">
+                        <div class="report-grid">
+                            <div class="report-item" onclick="selectReport('school-statistics')">
+                                <div class="report-icon"><i class="fas fa-school"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">学校別統計資料</div>
+                                    <div class="report-desc">学校別の給食実施状況、徴収状況などを集計</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('grade-statistics')">
+                                <div class="report-icon"><i class="fas fa-user-graduate"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">学年別統計資料</div>
+                                    <div class="report-desc">学年別の給食実施状況、徴収状況などを集計</div>
+                                </div>
+                            </div>
+                            <div class="report-item" onclick="selectReport('special-case-statistics')">
+                                <div class="report-icon"><i class="fas fa-file-medical-alt"></i></div>
+                                <div class="report-info">
+                                    <div class="report-title">特例情報統計資料</div>
+                                    <div class="report-desc">特例情報別の分析と集計</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- レポート選択後の設定パネル -->
+            <div class="card" id="report-settings-panel" style="display: none;">
+                <div class="card-header">
+                    <div class="card-title"><span id="selected-report-title">レポート設定</span></div>
+                    <button class="btn-icon" onclick="closeReportSettings()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label">出力期間<span class="form-required">*</span></label>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <label class="form-label">期間開始</label>
+                                <input type="date" class="form-control" id="start-date" value="2025-04-01">
+                            </div>
+                            <div class="form-col">
+                                <label class="form-label">期間終了</label>
+                                <input type="date" class="form-control" id="end-date" value="2025-04-30">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">対象範囲<span class="form-required">*</span></label>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <select class="form-select" id="school-filter">
+                                    <option value="all" selected>全ての学校</option>
+                                    <option value="school1">文京第一小学校</option>
+                                    <option value="school2">文京第二小学校</option>
+                                    <option value="school3">文京第三小学校</option>
+                                    <option value="jhs1">文京第一中学校</option>
+                                </select>
+                            </div>
+                            <div class="form-col">
+                                <select class="form-select" id="grade-filter">
+                                    <option value="all" selected>全ての学年</option>
+                                    <option value="1">1年</option>
+                                    <option value="2">2年</option>
+                                    <option value="3">3年</option>
+                                    <option value="4">4年</option>
+                                    <option value="5">5年</option>
+                                    <option value="6">6年</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" id="payment-method-filter">
+                        <label class="form-label">支払方法</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" checked> 口座振替</label>
+                            <label><input type="checkbox" checked> 納付書</label>
+                            <label><input type="checkbox" checked> 現金</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" id="special-case-filter">
+                        <label class="form-label">特例情報</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" checked> 生活保護</label>
+                            <label><input type="checkbox" checked> 就学援助</label>
+                            <label><input type="checkbox" checked> 児童手当からの徴収</label>
+                            <label><input type="checkbox" checked> その他減免措置</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">ファイル形式<span class="form-required">*</span></label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="file-format" value="pdf" checked> PDF</label>
+                            <label><input type="radio" name="file-format" value="excel"> Excel</label>
+                            <label><input type="radio" name="file-format" value="csv"> CSV</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">出力オプション</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" checked> ヘッダー・フッターを含める</label>
+                            <label><input type="checkbox" checked> 集計行を含める</label>
+                            <label><input type="checkbox"> 電子公印を使用する</label>
+                            <label><input type="checkbox"> 部署名を印刷する</label>
+                        </div>
+                    </div>
+                    
+                    <div class="report-preview" id="report-preview">
+                        <div class="preview-placeholder">
+                            <i class="fas fa-file-alt"></i>
+                            <p>プレビューを表示するには「プレビュー」ボタンをクリックしてください。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-primary" onclick="previewSelectedReport()"><i class="fas fa-eye"></i> プレビュー</button>
+                        <button class="btn btn-success" onclick="generateReport()"><i class="fas fa-file-download"></i> 出力</button>
+                        <button class="btn btn-danger" onclick="closeReportSettings()"><i class="fas fa-times"></i> キャンセル</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：レポートプレビュー -->
+    <div class="modal-backdrop" id="report-preview-modal" style="display: none;">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <div class="modal-title">帳票プレビュー</div>
+                <button class="modal-close" onclick="closePreviewModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="preview-toolbar">
+                    <div class="toolbar-left">
+                        <button class="btn-icon"><i class="fas fa-search-plus"></i></button>
+                        <button class="btn-icon"><i class="fas fa-search-minus"></i></button>
+                        <span class="page-info">1 / 3 ページ</span>
+                    </div>
+                    <div class="toolbar-right">
+                        <button class="btn-icon"><i class="fas fa-chevron-left"></i></button>
+                        <button class="btn-icon"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                
+                <div class="preview-container">
+                    <div class="preview-document">
+                        <div class="document-placeholder">
+                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=" class="document-image">
+                            <div class="document-overlay">プレビュー</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="downloadReport()"><i class="fas fa-file-download"></i> ダウンロード</button>
+                <button class="btn btn-primary"><i class="fas fa-print"></i> 印刷</button>
+                <button class="btn btn-danger" onclick="closePreviewModal()">閉じる</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notifications">
+        <!-- 通知はJSで動的に追加 -->
+    </div>
+    
+    <script src="report-output-js.js"></script>
+</body>
+</html>

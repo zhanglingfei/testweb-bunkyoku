@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文京区給食費管理システム - 給食費入金</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="report-output-css.css">
+</head>
+<body>
+    <div class="header">
+        <h1>文京区給食費管理システム</h1>
+        <div class="user-info">
+            <span>管理者：田中 太郎</span>
+            <button class="logout-btn">ログアウト</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item"><i class="fas fa-home"></i>ホーム</a></li>
+                <li><a href="bunkyo-user-management.html" class="nav-item active"><i class="fas fa-users"></i>喫食者情報</a></li>
+                <li><a href="food-management.html" class="nav-item"><i class="fas fa-utensils"></i>食数管理</a></li>
+                <li><a href="assessment-processing.html" class="nav-item"><i class="fas fa-calculator"></i>調定処理</a></li>
+                <li><a href="billing-processing.html" class="nav-item"><i class="fas fa-file-invoice"></i>請求処理</a></li>
+                <li><a href="payment-slip-creation.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i>納付書作成</a></li>
+                <li><a href="meal-fee-deposit.html" class="nav-item"><i class="fas fa-money-bill-wave"></i>給食費入金</a></li>
+                <li><a href="meal-fee-refund.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i>給食費返金</a></li>
+                <li><a href="accounts-receivable.html" class="nav-item"><i class="fas fa-exclamation-triangle"></i>未収金管理</a></li>
+                <li><a href="report-output.html" class="nav-item"><i class="fas fa-file-alt"></i>帳票出力</a></li>
+                <li><a href="system-settings.html" class="nav-item"><i class="fas fa-cog"></i>システム設定</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <h2 class="page-title"><i class="fas fa-money-bill-wave"></i> 給食費入金</h2>
+            
+            <div class="action-bar">
+                <div class="search-container">
+                    <div class="search-field">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="生徒名または管理番号で検索">
+                    </div>
+                    <div class="search-options">
+                        <select id="payment-method-filter">
+                            <option value="all">すべての支払方法</option>
+                            <option value="bank">口座振替</option>
+                            <option value="slip">納付書</option>
+                            <option value="cash">現金</option>
+                        </select>
+                        <select id="payment-status-filter">
+                            <option value="all">すべての状態</option>
+                            <option value="paid">入金済</option>
+                            <option value="unpaid">未入金</option>
+                            <option value="partial">一部入金</option>
+                        </select>
+                        <select id="school-filter">
+                            <option value="all">すべての学校</option>
+                            <option value="school1">文京第一小学校</option>
+                            <option value="school2">文京第二小学校</option>
+                            <option value="school3">文京第三小学校</option>
+                            <option value="jhs1">文京第一中学校</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="showBankTransferModal()"><i class="fas fa-university"></i> 口座振替取込</button>
+                    <button class="btn btn-success" onclick="showPaymentSlipModal()"><i class="fas fa-file-invoice"></i> 納付書入金</button>
+                    <button class="btn btn-warning" onclick="showCashPaymentModal()"><i class="fas fa-cash-register"></i> 現金入金</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">入金状況一覧</div>
+                    <div class="date-navigator">
+                        <button class="btn-icon" id="prev-month-btn"><i class="fas fa-angle-left"></i></button>
+                        <span class="current-date" id="current-month">2025年4月</span>
+                        <button class="btn-icon" id="next-month-btn"><i class="fas fa-angle-right"></i></button>
+                        <button class="btn-icon" style="margin-left: 10px;" id="calendar-btn"><i class="fas fa-calendar-alt"></i></button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('tab-individual')">個人別入金状況</div>
+                        <div class="tab" onclick="switchTab('tab-bank')">口座振替結果</div>
+                        <div class="tab" onclick="switchTab('tab-slip')">納付書入金</div>
+                        <div class="tab" onclick="switchTab('tab-cash')">現金入金</div>
+                        <div class="tab" onclick="switchTab('tab-daily')">日別入金状況</div>
+                    </div>
+                    
+                    <!-- 個人別入金状況タブ -->
+                    <div class="tab-content active" id="tab-individual">
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <thead>
+                                <tr style="background-color: var(--light-gray);">
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">生徒ID</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">氏名</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">学校</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">学年・クラス</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">支払方法</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid var(--medium-gray);">請求額</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid var(--medium-gray);">収納額</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid var(--medium-gray);">未納額</th>
+                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid var(--medium-gray);">状態</th>
+                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid var(--medium-gray);">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="individual-payments-list">
+                                <!-- データはJavaScriptで動的に生成 -->
+                            </tbody>
+                        </table>
+                        <div style="display: flex; justify-content: center;">
+                            <button class="btn btn-primary" onclick="loadMoreIndividualPayments()">さらに表示</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 口座振替結果タブ -->
+                    <div class="tab-content" id="tab-bank">
+                        <div class="form-group">
+                            <label class="form-label">口座振替結果一覧</label>
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <label class="form-label">振替日</label>
+                                    <select class="form-select" id="bank-transfer-date">
+                                        <option value="2025-04-27">2025年4月27日</option>
+                                        <option value="2025-04-15">2025年4月15日</option>
+                                        <option value="2025-03-27">2025年3月27日</option>
+                                    </select>
+                                </div>
+                                <div class="form-col">
+                                    <label class="form-label">金融機関</label>
+                                    <select class="form-select" id="bank-filter">
+                                        <option value="all">すべての金融機関</option>
+                                        <option value="bank1">みずほ銀行</option>
+                                        <option value="bank2">三菱UFJ銀行</option>
+                                        <option value="bank3">三井住友銀行</option>
+                                        <option value="bank4">りそな銀行</option>
+                                        <option value="bank5">ゆうちょ銀行</option>
+                                    </select>
+                                </div>
+                                <div class="form-col">
+                                    <label class="form-label">振替結果</label>
+                                    <select class="form-select" id="transfer-result-filter">
+                                        <option value="all">すべての結果</option>
+                                        <option value="success">成功</option>
+                                        <option value="fail">不能</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <thead>
+                                <tr style="background-color: var(--light-gray);">
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">振替日</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">生徒ID</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">氏名</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">金融機関</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">口座番号</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid var(--medium-gray);">振替額</th>
+                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid var(--medium-gray);">結果</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">不能理由</th>
+                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid var(--medium-gray);">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bank-transfer-results">
+                                <!-- データはJavaScriptで動的に生成 -->
+                            </tbody>
+                        </table>
+                        
+                        <div class="form-actions">
+                            <button class="btn btn-warning" onclick="showReprocessModal()"><i class="fas fa-redo"></i> 振替不能者再処理</button>
+                            <button class="btn btn-success" onclick="exportBankTransferResults()"><i class="fas fa-file-export"></i> エクスポート</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 納付書入金タブ -->
+                    <div class="tab-content" id="tab-slip">
+                        <div class="form-group">
+                            <label class="form-label">納付書入金一覧</label>
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <label class="form-label">入金日</label>
+                                    <input type="date" class="form-control" id="slip-payment-date" value="2025-04-27">
+                                </div>
+                                <div class="form-col">
+                                    <label class="form-label">支払場所</label>
+                                    <select class="form-select" id="payment-location-filter">
+                                        <option value="all">すべての場所</option>
+                                        <option value="bank">金融機関</option>
+                                        <option value="conbini">コンビニエンスストア</option>
+                                        <option value="district">区役所窓口</option>
+                                    </select>
+                                </div>
+                                <div class="form-col">
+                                    <button class="btn btn-primary" style="margin-top: 25px;" onclick="filterSlipPayments()"><i class="fas fa-search"></i> 検索</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <thead>
+                                <tr style="background-color: var(--light-gray);">
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">納付書番号</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">入金日</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">生徒ID</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">氏名</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">支払場所</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid var(--medium-gray);">請求額</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid var(--medium-gray);">入金額</th>
+                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid var(--medium-gray);">消込状態</th>
+                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid var(--medium-gray);">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="slip-payment-list">
+                                <!-- データはJavaScriptで動的に生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 現金入金タブ -->
+                    <div class="tab-content" id="tab-cash">
+                        <div class="form-group">
+                            <label class="form-label">現金入金一覧</label>
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <label class="form-label">入金日</label>
+                                    <input type="date" class="form-control" id="cash-payment-date" value="2025-04-27">
+                                </div>
+                                <div class="form-col">
+                                    <label class="form-label">学校</label>
+                                    <select class="form-select" id="cash-school-filter">
+                                        <option value="all">すべての学校</option>
+                                        <option value="school1">文京第一小学校</option>
+                                        <option value="school2">文京第二小学校</option>
+                                        <option value="school3">文京第三小学校</option>
+                                        <option value="jhs1">文京第一中学校</option>
+                                    </select>
+                                </div>
+                                <div class="form-col">
+                                    <button class="btn btn-primary" style="margin-top: 25px;" onclick="filterCashPayments()"><i class="fas fa-search"></i> 検索</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <thead>
+                                <tr style="background-color: var(--light-gray);">
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">入金番号</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">入金日</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">生徒ID</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">氏名</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">学校</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid var(--medium-gray);">請求額</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid var(--medium-gray);">入金額</th>
+                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid var(--medium-gray);">消込状態</th>
+                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid var(--medium-gray);">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cash-payment-list">
+                                <!-- データはJavaScriptで動的に生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 日別入金状況タブ -->
+                    <div class="tab-content" id="tab-daily">
+                        <div class="form-group">
+                            <label class="form-label">日別入金状況</label>
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <label class="form-label">日付</label>
+                                    <input type="date" class="form-control" id="daily-report-date" value="2025-04-27">
+                                </div>
+                                <div class="form-col">
+                                    <button class="btn btn-primary" style="margin-top: 25px;" onclick="loadDailyReport()"><i class="fas fa-search"></i> 表示</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card" style="margin-top: 20px;">
+                            <div class="card-header">
+                                <div class="card-title">2025年4月27日の入金集計</div>
+                            </div>
+                            <div class="card-body">
+                                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                                    <thead>
+                                        <tr style="background-color: var(--light-gray);">
+                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">支払方法</th>
+                                            <th style="padding: 10px; text-align: right; border-bottom: 1px solid var(--medium-gray);">件数</th>
+                                            <th style="padding: 10px; text-align: right; border-bottom: 1px solid var(--medium-gray);">金額</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="daily-summary">
+                                        <!-- データはJavaScriptで動的に生成 -->
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style="font-weight: bold; background-color: var(--light-gray);">
+                                            <td style="padding: 10px; text-align: left; border-top: 1px solid var(--medium-gray);">合計</td>
+                                            <td style="padding: 10px; text-align: right; border-top: 1px solid var(--medium-gray);" id="total-count">0件</td>
+                                            <td style="padding: 10px; text-align: right; border-top: 1px solid var(--medium-gray);" id="total-amount">¥0</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                
+                                <div class="form-actions">
+                                    <button class="btn btn-success" onclick="exportDailyReport()"><i class="fas fa-file-export"></i> 日計表出力</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：口座振替データ取込 -->
+    <div class="modal-backdrop" id="bank-transfer-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">口座振替データ取込</div>
+                <button class="modal-close" onclick="closeModal('bank-transfer-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">口座振替データファイル<span class="form-required">*</span></label>
+                    <input type="file" class="form-control" id="bank-transfer-file">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">振替日<span class="form-required">*</span></label>
+                    <input type="date" class="form-control" id="transfer-date" value="2025-04-27">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">金融機関<span class="form-required">*</span></label>
+                    <select class="form-select" id="bank-select">
+                        <option value="">-- 選択してください --</option>
+                        <option value="bank1">みずほ銀行</option>
+                        <option value="bank2">三菱UFJ銀行</option>
+                        <option value="bank3">三井住友銀行</option>
+                        <option value="bank4">りそな銀行</option>
+                        <option value="bank5">ゆうちょ銀行</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">取込対象月<span class="form-required">*</span></label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="target-month" value="202504" checked> 2025年4月</label>
+                        <label><input type="checkbox" name="target-month" value="202503"> 2025年3月</label>
+                        <label><input type="checkbox" name="target-month" value="202502"> 2025年2月</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="importBankTransferData()"><i class="fas fa-file-import"></i> 取込実行</button>
+                <button class="btn btn-danger" onclick="closeModal('bank-transfer-modal')">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：納付書入金データ取込 -->
+    <div class="modal-backdrop" id="payment-slip-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">納付書入金データ取込</div>
+                <button class="modal-close" onclick="closeModal('payment-slip-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">入金データファイル<span class="form-required">*</span></label>
+                    <input type="file" class="form-control" id="payment-slip-file">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">入金日<span class="form-required">*</span></label>
+                    <input type="date" class="form-control" id="slip-date" value="2025-04-27">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">支払場所<span class="form-required">*</span></label>
+                    <select class="form-select" id="payment-location">
+                        <option value="">-- 選択してください --</option>
+                        <option value="bank">金融機関</option>
+                        <option value="conbini">コンビニエンスストア</option>
+                        <option value="district">区役所窓口</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="importPaymentSlipData()"><i class="fas fa-file-import"></i> 取込実行</button>
+                <button class="btn btn-danger" onclick="closeModal('payment-slip-modal')">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：現金入金登録 -->
+    <div class="modal-backdrop" id="cash-payment-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">現金入金登録</div>
+                <button class="modal-close" onclick="closeModal('cash-payment-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">生徒検索<span class="form-required">*</span></label>
+                    <div class="search-field">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="student-search" placeholder="生徒名または管理番号">
+                    </div>
+                </div>
+                
+                <div id="student-search-results" style="display: none; margin-bottom: 20px;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: var(--light-gray);">
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--medium-gray);">生徒ID</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--medium-gray);">氏名</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--medium-gray);">学校</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--medium-gray);">学年・クラス</th>
+                                <th style="padding: 8px; text-align: center; border-bottom: 1px solid var(--medium-gray);">選択</th>
+                            </tr>
+                        </thead>
+                        <tbody id="search-results-body">
+                            <!-- 検索結果がここに表示されます -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="selected-student-info" style="display: none; margin-bottom: 20px; padding: 10px; background-color: var(--light-gray); border-radius: 4px;">
+                    <h4 style="margin-top: 0; margin-bottom: 10px;">選択した生徒</h4>
+                    <p style="margin: 5px 0;"><strong>生徒ID:</strong> <span id="selected-student-id"></span></p>
+                    <p style="margin: 5px 0;"><strong>氏名:</strong> <span id="selected-student-name"></span></p>
+                    <p style="margin: 5px 0;"><strong>学校:</strong> <span id="selected-student-school"></span></p>
+                    <p style="margin: 5px 0;"><strong>学年・クラス:</strong> <span id="selected-student-class"></span></p>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">入金日<span class="form-required">*</span></label>
+                    <input type="date" class="form-control" id="cash-date" value="2025-04-27">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">入金対象月<span class="form-required">*</span></label>
+                    <select class="form-select" id="cash-target-month">
+                        <option value="">-- 選択してください --</option>
+                        <option value="202504">2025年4月</option>
+                        <option value="202503">2025年3月</option>
+                        <option value="202502">2025年2月</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="payment-amount-container" style="display: none;">
+                    <label class="form-label">請求金額</label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <input type="text" class="form-control" id="billing-amount" value="5,000" readonly>
+                        </div>
+                        <div class="form-col">
+                            <label class="form-label">入金額<span class="form-required">*</span></label>
+                            <input type="text" class="form-control" id="payment-amount" value="5,000">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">備考</label>
+                    <textarea class="form-control" id="payment-notes" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="register-payment-btn" disabled onclick="registerCashPayment()"><i class="fas fa-save"></i> 入金登録</button>
+                <button class="btn btn-danger" onclick="closeModal('cash-payment-modal')">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：振替不能者再処理 -->
+    <div class="modal-backdrop" id="reprocess-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">口座振替不能者再処理</div>
+                <button class="modal-close" onclick="closeModal('reprocess-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">振替不能者一覧</label>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <thead>
+                            <tr style="background-color: var(--light-gray);">
+                                <th style="padding: 8px; text-align: center; border-bottom: 1px solid var(--medium-gray);">
+                                    <input type="checkbox" id="select-all-failures" onchange="toggleAllFailures(this)">
+                                </th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--medium-gray);">生徒ID</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--medium-gray);">氏名</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--medium-gray);">金融機関</th>
+                                <th style="padding: 8px; text-align: right; border-bottom: 1px solid var(--medium-gray);">振替額</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--medium-gray);">不能理由</th>
+                            </tr>
+                        </thead>
+                        <tbody id="failure-list">
+                            <!-- 振替不能者リストがここに表示されます -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">処理方法<span class="form-required">*</span></label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="reprocess-method" value="bank" checked> 再振替</label>
+                        <label><input type="radio" name="reprocess-method" value="slip"> 納付書発行</label>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="retry-date-container">
+                    <label class="form-label">再振替日<span class="form-required">*</span></label>
+                    <input type="date" class="form-control" id="retry-date" value="2025-05-15">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="processFailures()"><i class="fas fa-cog"></i> 処理実行</button>
+                <button class="btn btn-danger" onclick="closeModal('reprocess-modal')">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：個人納付履歴 -->
+    <div class="modal-backdrop" id="payment-history-modal" style="display: none;">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <div class="modal-title">納付履歴 - <span id="history-student-name"></span></div>
+                <button class="modal-close" onclick="closeModal('payment-history-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <p><strong>学校:</strong> <span id="history-student-school"></span></p>
+                            <p><strong>学年・クラス:</strong> <span id="history-student-class"></span></p>
+                        </div>
+                        <div class="form-col">
+                            <p><strong>支払方法:</strong> <span id="history-payment-method"></span></p>
+                            <p><strong>口座情報:</strong> <span id="history-bank-info"></span></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tabs">
+                    <div class="tab active" onclick="switchHistoryTab('history-tab-monthly')">月別収納状況</div>
+                    <div class="tab" onclick="switchHistoryTab('history-tab-payments')">入金履歴</div>
+                </div>
+                
+                <div class="tab-content active" id="history-tab-monthly">
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <thead>
+                            <tr style="background-color: var(--light-gray);">
+                                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">年月</th>
+                                <th style="padding: 10px; text-align: right; border-bottom: 1px solid var(--medium-gray);">請求額</th>
+                                <th style="padding: 10px; text-align: right; border-bottom: 1px solid var(--medium-gray);">収納額</th>
+                                <th style="padding: 10px; text-align: right; border-bottom: 1px solid var(--medium-gray);">未納額</th>
+                                <th style="padding: 10px; text-align: center; border-bottom: 1px solid var(--medium-gray);">収納日</th>
+                                <th style="padding: 10px; text-align: center; border-bottom: 1px solid var(--medium-gray);">収納方法</th>
+                                <th style="padding: 10px; text-align: center; border-bottom: 1px solid var(--medium-gray);">状態</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthly-payment-history">
+                            <!-- 月別収納状況がここに表示されます -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="tab-content" id="history-tab-payments">
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <thead>
+                            <tr style="background-color: var(--light-gray);">
+                                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">入金日</th>
+                                <th style="padding: 10px; text-align: center; border-bottom: 1px solid var(--medium-gray);">収納方法</th>
+                                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">対象月</th>
+                                <th style="padding: 10px; text-align: right; border-bottom: 1px solid var(--medium-gray);">入金額</th>
+                                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--medium-gray);">備考</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payment-history-list">
+                            <!-- 入金履歴がここに表示されます -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="exportPaymentHistory()"><i class="fas fa-file-export"></i> 履歴出力</button>
+                <button class="btn btn-danger" onclick="closeModal('payment-history-modal')">閉じる</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notifications">
+        <!-- 通知はJSで動的に追加 -->
+    </div>
+    
+    <script src="meal-fee-deposit.js"></script>
+</body>
+</html>

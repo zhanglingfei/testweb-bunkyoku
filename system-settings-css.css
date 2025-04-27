@@ -1,0 +1,364 @@
+/* システム設定ページのための追加スタイル */
+
+/* セクション区切り */
+.setting-section {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--light-gray);
+    padding-bottom: 1.5rem;
+}
+
+.setting-section:last-child {
+    border-bottom: none;
+}
+
+/* 基本設定タブのスタイル */
+#tab-base .form-group {
+    max-width: 800px;
+}
+
+/* 外字ライブラリ表示 */
+.gaiji-preview {
+    background-color: var(--light-gray);
+    border: 1px solid var(--medium-gray);
+    border-radius: 4px;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.gaiji-item {
+    width: 32px;
+    height: 32px;
+    background-color: white;
+    border: 1px solid var(--medium-gray);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.gaiji-item:hover {
+    border-color: var(--primary-color);
+}
+
+/* 電子公印プレビュー */
+.seal-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.seal-preview img {
+    width: 100px;
+    height: 100px;
+    border: 1px dashed var(--medium-gray);
+    border-radius: 4px;
+    padding: 0.5rem;
+}
+
+.seal-preview-label {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* ログ管理タブのスタイル */
+.log-filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.log-type-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.log-type-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.2s;
+}
+
+.log-type-badge.active {
+    opacity: 1;
+    font-weight: 600;
+}
+
+.log-type-badge:hover {
+    opacity: 0.9;
+}
+
+.log-badge-login {
+    background-color: rgba(0, 90, 160, 0.1);
+    color: var(--primary-color);
+}
+
+.log-badge-operation {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--success-color);
+}
+
+.log-badge-error {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: var(--danger-color);
+}
+
+.log-badge-report {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: var(--warning-color);
+}
+
+.log-badge-csv {
+    background-color: rgba(158, 158, 158, 0.1);
+    color: #757575;
+}
+
+/* ログ詳細のJSON表示をカスタマイズ */
+.log-json {
+    font-family: monospace;
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow: auto;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #333;
+}
+
+.log-json .key {
+    color: #881391;
+}
+
+.log-json .string {
+    color: #a31515;
+}
+
+.log-json .number {
+    color: #1c00cf;
+}
+
+.log-json .boolean {
+    color: #0000ff;
+}
+
+.log-json .null {
+    color: #0000ff;
+}
+
+/* ユーザー管理タブのスタイル */
+.role-badge {
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.role-admin {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: var(--danger-color);
+}
+
+.role-district {
+    background-color: rgba(0, 90, 160, 0.1);
+    color: var(--primary-color);
+}
+
+.role-school {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--success-color);
+}
+
+/* パスワード強度メーター */
+.password-strength {
+    height: 4px;
+    background-color: var(--light-gray);
+    margin-top: 0.25rem;
+    overflow: hidden;
+    border-radius: 2px;
+}
+
+.password-strength-bar {
+    height: 100%;
+    transition: width 0.3s, background-color 0.3s;
+}
+
+.password-strength-text {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.strength-weak {
+    width: 30%;
+    background-color: var(--danger-color);
+}
+
+.strength-medium {
+    width: 60%;
+    background-color: var(--warning-color);
+}
+
+.strength-strong {
+    width: 100%;
+    background-color: var(--success-color);
+}
+
+/* 学校コード管理タブのスタイル */
+.school-status {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+.school-active {
+    background-color: var(--success-color);
+}
+
+.school-inactive {
+    background-color: var(--danger-color);
+}
+
+/* 金融機関管理タブのスタイル */
+.bank-search-options {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.bank-search-options select {
+    min-width: 150px;
+}
+
+/* システムバックアップ履歴 */
+.backup-history {
+    margin-top: 1rem;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.backup-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--light-gray);
+    font-size: 0.9rem;
+}
+
+.backup-item:last-child {
+    border-bottom: none;
+}
+
+.backup-date {
+    font-weight: 600;
+}
+
+.backup-size {
+    color: #777;
+}
+
+.backup-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* スマートフォン対応 */
+@media (max-width: 768px) {
+    .tabs {
+        flex-wrap: wrap;
+    }
+    
+    .tab {
+        flex: 1 1 auto;
+        text-align: center;
+        min-width: 100px;
+    }
+    
+    .action-bar {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .search-container, .action-buttons {
+        width: 100%;
+    }
+    
+    .search-options {
+        flex-wrap: wrap;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    th, td {
+        padding: 0.5rem;
+    }
+    
+    th:nth-child(5), td:nth-child(5),
+    th:nth-child(6), td:nth-child(6) {
+        display: none;
+    }
+}
+
+/* 印刷用スタイル */
+@media print {
+    .header, .sidebar, .action-bar, .pagination, .modal-backdrop {
+        display: none !important;
+    }
+    
+    .container {
+        display: block;
+    }
+    
+    .main-content {
+        width: 100%;
+        padding: 0;
+        overflow: visible;
+    }
+    
+    .card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .tab-content:not(.active) {
+        display: block !important;
+        margin-top: 2rem;
+        page-break-before: always;
+    }
+    
+    .tab-content::before {
+        content: attr(id);
+        display: block;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        text-transform: capitalize;
+    }
+    
+    .tabs {
+        display: none;
+    }
+    
+    .table-actions {
+        display: none;
+    }
+}

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文京区給食費管理システム - 給食費返金</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="food-management-css.css">
+</head>
+<body>
+    <div class="header">
+        <h1>文京区給食費管理システム</h1>
+        <div class="user-info">
+            <span>管理者：田中 太郎</span>
+            <button class="logout-btn">ログアウト</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item"><i class="fas fa-home"></i>ホーム</a></li>
+                <li><a href="bunkyo-user-management.html" class="nav-item"><i class="fas fa-users"></i>喫食者情報</a></li>
+                <li><a href="food-management.html" class="nav-item"><i class="fas fa-utensils"></i>食数管理</a></li>
+                <li><a href="assessment-processing.html" class="nav-item"><i class="fas fa-calculator"></i>調定処理</a></li>
+                <li><a href="billing-processing.html" class="nav-item"><i class="fas fa-file-invoice"></i>請求処理</a></li>
+                <li><a href="payment-slip-creation.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i>納付書作成</a></li>
+                <li><a href="meal-fee-deposit.html" class="nav-item"><i class="fas fa-money-bill-wave"></i>給食費入金</a></li>
+                <li><a href="meal-fee-refund.html" class="nav-item active"><i class="fas fa-hand-holding-usd"></i>給食費返金</a></li>
+                <li><a href="accounts-receivable.html" class="nav-item"><i class="fas fa-exclamation-triangle"></i>未収金管理</a></li>
+                <li><a href="report-output.html" class="nav-item"><i class="fas fa-file-alt"></i>帳票出力</a></li>
+                <li><a href="system-settings.html" class="nav-item"><i class="fas fa-cog"></i>システム設定</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <h2 class="page-title"><i class="fas fa-hand-holding-usd"></i> 給食費返金</h2>
+            
+            <div class="action-bar">
+                <div class="search-container">
+                    <div class="search-field">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="名前で検索">
+                    </div>
+                    <div class="search-options">
+                        <select id="school-select">
+                            <option>全ての学校</option>
+                            <option>文京第一小学校</option>
+                            <option>文京第二小学校</option>
+                            <option>文京第三小学校</option>
+                            <option>文京第一中学校</option>
+                        </select>
+                        <select id="grade-select">
+                            <option>全ての学年</option>
+                            <option>1年</option>
+                            <option>2年</option>
+                            <option>3年</option>
+                            <option>4年</option>
+                            <option>5年</option>
+                            <option>6年</option>
+                        </select>
+                        <select id="class-select">
+                            <option>全てのクラス</option>
+                            <option>1組</option>
+                            <option>2組</option>
+                            <option>3組</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-success" onclick="openBulkRefundModal()"><i class="fas fa-users"></i> 一括返金処理</button>
+                    <button class="btn btn-primary" onclick="openRefundListModal()"><i class="fas fa-list"></i> 返金予定者一覧</button>
+                    <button class="btn btn-warning"><i class="fas fa-file-export"></i> エクスポート</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">給食費返金管理</div>
+                </div>
+                <div class="card-body">
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('tab-individual')">個人返金</div>
+                        <div class="tab" onclick="switchTab('tab-batch')">一括返金</div>
+                        <div class="tab" onclick="switchTab('tab-history')">返金履歴</div>
+                    </div>
+                    
+                    <!-- 個人返金タブ -->
+                    <div class="tab-content active" id="tab-individual">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>氏名</th>
+                                    <th>学校</th>
+                                    <th>学年・クラス</th>
+                                    <th>返金対象額</th>
+                                    <th>返金状態</th>
+                                    <th>返金日</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2025001</td>
+                                    <td>山田 太郎</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年1組</td>
+                                    <td>¥2,500</td>
+                                    <td><span class="status status-warning">返金待ち</span></td>
+                                    <td>-</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openRefundModal(2025001)"><i class="fas fa-yen-sign"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025003</td>
+                                    <td>鈴木 花子</td>
+                                    <td>文京第一小学校</td>
+                                    <td>3年2組</td>
+                                    <td>¥1,800</td>
+                                    <td><span class="status status-warning">返金待ち</span></td>
+                                    <td>-</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openRefundModal(2025003)"><i class="fas fa-yen-sign"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025005</td>
+                                    <td>高橋 真理</td>
+                                    <td>文京第二小学校</td>
+                                    <td>4年1組</td>
+                                    <td>¥3,600</td>
+                                    <td><span class="status status-success">返金済</span></td>
+                                    <td>2025/04/15</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon" disabled><i class="fas fa-yen-sign"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025008</td>
+                                    <td>佐々木 健太</td>
+                                    <td>文京第三小学校</td>
+                                    <td>5年2組</td>
+                                    <td>¥4,200</td>
+                                    <td><span class="status status-warning">返金待ち</span></td>
+                                    <td>-</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openRefundModal(2025008)"><i class="fas fa-yen-sign"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025010</td>
+                                    <td>田中 美咲</td>
+                                    <td>文京第一中学校</td>
+                                    <td>1年3組</td>
+                                    <td>¥5,300</td>
+                                    <td><span class="status status-success">返金済</span></td>
+                                    <td>2025/04/10</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon" disabled><i class="fas fa-yen-sign"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination">
+                            <div class="page-item"><i class="fas fa-angle-double-left"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-left"></i></div>
+                            <div class="page-item active">1</div>
+                            <div class="page-item">2</div>
+                            <div class="page-item">3</div>
+                            <div class="page-item"><i class="fas fa-angle-right"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-double-right"></i></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 一括返金タブ -->
+                    <div class="tab-content" id="tab-batch">
+                        <div class="form-group">
+                            <label class="form-label">返金対象範囲<span class="form-required">*</span></label>
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <select class="form-select" id="refund-target-type">
+                                        <option value="school">学校</option>
+                                        <option value="grade">学年</option>
+                                        <option value="class">クラス</option>
+                                    </select>
+                                </div>
+                                <div class="form-col">
+                                    <select class="form-select" id="refund-target-value">
+                                        <option>文京第一小学校</option>
+                                        <option>文京第二小学校</option>
+                                        <option>文京第三小学校</option>
+                                        <option>文京第一中学校</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">返金理由<span class="form-required">*</span></label>
+                            <select class="form-select" id="refund-reason">
+                                <option value="school-event">学校行事</option>
+                                <option value="menu-change">献立変更</option>
+                                <option value="school-close">休校</option>
+                                <option value="overpayment">過払い</option>
+                                <option value="other">その他</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">詳細</label>
+                            <textarea class="form-control" rows="3" placeholder="返金の詳細理由等がある場合はこちらに入力してください"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button class="btn btn-primary" onclick="calculateBatchRefund()"><i class="fas fa-calculator"></i> 返金対象者計算</button>
+                        </div>
+                        
+                        <div id="batch-result" style="display: none;">
+                            <h3 style="margin-top: 1.5rem; margin-bottom: 1rem;">返金対象者一覧</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>氏名</th>
+                                        <th>学校</th>
+                                        <th>学年・クラス</th>
+                                        <th>返金対象額</th>
+                                        <th>返金方法</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="batch-refund-list">
+                                    <!-- 動的に生成される -->
+                                </tbody>
+                            </table>
+                            
+                            <div class="alert alert-info" style="margin-top: 1rem;">
+                                <i class="fas fa-info-circle"></i> 上記の対象者に対して返金処理を行います。内容をご確認の上、処理を実行してください。
+                            </div>
+                            
+                            <div style="text-align: right; margin-top: 1rem;">
+                                <button class="btn btn-success" onclick="processBatchRefund()"><i class="fas fa-check"></i> 一括返金処理を実行</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 返金履歴タブ -->
+                    <div class="tab-content" id="tab-history">
+                        <div class="form-row" style="margin-bottom: 1.5rem;">
+                            <div class="form-col">
+                                <label class="form-label">期間</label>
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <input type="date" class="form-control" id="history-start-date">
+                                    <span>～</span>
+                                    <input type="date" class="form-control" id="history-end-date">
+                                    <button class="btn btn-primary" style="margin-left: 0.5rem;"><i class="fas fa-search"></i> 検索</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>返金日</th>
+                                    <th>ID</th>
+                                    <th>氏名</th>
+                                    <th>学校</th>
+                                    <th>学年・クラス</th>
+                                    <th>返金額</th>
+                                    <th>返金理由</th>
+                                    <th>返金方法</th>
+                                    <th>処理者</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2025/04/15</td>
+                                    <td>2025005</td>
+                                    <td>高橋 真理</td>
+                                    <td>文京第二小学校</td>
+                                    <td>4年1組</td>
+                                    <td>¥3,600</td>
+                                    <td>過払い</td>
+                                    <td>口座振込</td>
+                                    <td>田中 太郎</td>
+                                </tr>
+                                <tr>
+                                    <td>2025/04/10</td>
+                                    <td>2025010</td>
+                                    <td>田中 美咲</td>
+                                    <td>文京第一中学校</td>
+                                    <td>1年3組</td>
+                                    <td>¥5,300</td>
+                                    <td>休校</td>
+                                    <td>口座振込</td>
+                                    <td>田中 太郎</td>
+                                </tr>
+                                <tr>
+                                    <td>2025/03/28</td>
+                                    <td>2025015</td>
+                                    <td>伊藤 大輔</td>
+                                    <td>文京第三小学校</td>
+                                    <td>6年1組</td>
+                                    <td>¥2,800</td>
+                                    <td>学校行事</td>
+                                    <td>現金</td>
+                                    <td>鈴木 次郎</td>
+                                </tr>
+                                <tr>
+                                    <td>2025/03/25</td>
+                                    <td>2025020</td>
+                                    <td>佐藤 健一</td>
+                                    <td>文京第一小学校</td>
+                                    <td>2年2組</td>
+                                    <td>¥4,500</td>
+                                    <td>献立変更</td>
+                                    <td>口座振込</td>
+                                    <td>鈴木 次郎</td>
+                                </tr>
+                                <tr>
+                                    <td>2025/03/20</td>
+                                    <td>2025025</td>
+                                    <td>木村 雅子</td>
+                                    <td>文京第二小学校</td>
+                                    <td>5年3組</td>
+                                    <td>¥3,200</td>
+                                    <td>休校</td>
+                                    <td>口座振込</td>
+                                    <td>鈴木 次郎</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination">
+                            <div class="page-item"><i class="fas fa-angle-double-left"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-left"></i></div>
+                            <div class="page-item active">1</div>
+                            <div class="page-item">2</div>
+                            <div class="page-item">3</div>
+                            <div class="page-item"><i class="fas fa-angle-right"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-double-right"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：返金処理 -->
+    <div class="modal-backdrop" id="refund-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">給食費返金処理</div>
+                <button class="modal-close" onclick="closeRefundModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">対象者</label>
+                    <input type="text" class="form-control" id="refund-user-name" value="山田 太郎" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">所属</label>
+                    <input type="text" class="form-control" id="refund-user-school" value="文京第一小学校 3年1組" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">返金対象額</label>
+                    <input type="text" class="form-control" id="refund-amount" value="¥2,500" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">返金方法<span class="form-required">*</span></label>
+                    <select class="form-select" id="refund-method">
+                        <option value="bank">口座振込</option>
+                        <option value="cash">現金</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">返金理由<span class="form-required">*</span></label>
+                    <select class="form-select" id="refund-reason-single">
+                        <option value="school-event">学校行事</option>
+                        <option value="menu-change">献立変更</option>
+                        <option value="school-close">休校</option>
+                        <option value="overpayment">過払い</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">備考</label>
+                    <textarea class="form-control" id="refund-note" rows="3" placeholder="備考がある場合はこちらに入力してください"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="processRefund()">返金処理実行</button>
+                <button class="btn btn-danger" onclick="closeRefundModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：一括返金 -->
+    <div class="modal-backdrop" id="bulk-refund-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">給食費一括返金設定</div>
+                <button class="modal-close" onclick="closeBulkRefundModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">対象範囲<span class="form-required">*</span></label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <select class="form-select">
+                                <option value="school">学校</option>
+                                <option value="grade">学年</option>
+                                <option value="class">クラス</option>
+                            </select>
+                        </div>
+                        <div class="form-col">
+                            <select class="form-select">
+                                <option>文京第一小学校</option>
+                                <option>文京第二小学校</option>
+                                <option>文京第三小学校</option>
+                                <option>文京第一中学校</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">返金金額設定<span class="form-required">*</span></label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <select class="form-select">
+                                <option value="fixed">固定金額</option>
+                                <option value="days">日数指定</option>
+                            </select>
+                        </div>
+                        <div class="form-col">
+                            <input type="number" class="form-control" placeholder="金額または日数">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">返金理由<span class="form-required">*</span></label>
+                    <select class="form-select">
+                        <option value="school-event">学校行事</option>
+                        <option value="menu-change">献立変更</option>
+                        <option value="school-close">休校</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">詳細</label>
+                    <textarea class="form-control" rows="3" placeholder="一括返金の詳細理由等がある場合はこちらに入力してください"></textarea>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> この操作により選択した対象範囲の全ての喫食者に対して返金処理が行われます。
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success">確認画面へ</button>
+                <button class="btn btn-danger" onclick="closeBulkRefundModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：返金予定者一覧 -->
+    <div class="modal-backdrop" id="refund-list-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">返金予定者一覧</div>
+                <button class="modal-close" onclick="closeRefundListModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">表示条件</label>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <select class="form-select">
+                                <option value="all">全ての対象者</option>
+                                <option value="pending">返金待ち</option>
+                                <option value="processed">返金済み</option>
+                            </select>
+                        </div>
+                        <div class="form-col">
+                            <button class="btn btn-primary">適用</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>氏名</th>
+                            <th>学校</th>
+                            <th>学年・クラス</th>
+                            <th>返金対象額</th>
+                            <th>返金状態</th>
+                            <th>返金予定日</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2025001</td>
+                            <td>山田 太郎</td>
+                            <td>文京第一小学校</td>
+                            <td>3年1組</td>
+                            <td>¥2,500</td>
+                            <td><span class="status status-warning">返金待ち</span></td>
+                            <td>2025/04/30</td>
+                        </tr>
+                        <tr>
+                            <td>2025003</td>
+                            <td>鈴木 花子</td>
+                            <td>文京第一小学校</td>
+                            <td>3年2組</td>
+                            <td>¥1,800</td>
+                            <td><span class="status status-warning">返金待ち</span></td>
+                            <td>2025/04/30</td>
+                        </tr>
+                        <tr>
+                            <td>2025008</td>
+                            <td>佐々木 健太</td>
+                            <td>文京第三小学校</td>
+                            <td>5年2組</td>
+                            <td>¥4,200</td>
+                            <td><span class="status status-warning">返金待ち</span></td>
+                            <td>2025/04/30</td>
+                        </tr>
+                        <tr>
+                            <td>2025005</td>
+                            <td>高橋 真理</td>
+                            <td>文京第二小学校</td>
+                            <td>4年1組</td>
+                            <td>¥3,600</td>
+                            <td><span class="status status-success">返金済</span></td>
+                            <td>2025/04/15</td>
+                        </tr>
+                        <tr>
+                            <td>2025010</td>
+                            <td>田中 美咲</td>
+                            <td>文京第一中学校</td>
+                            <td>1年3組</td>
+                            <td>¥5,300</td>
+                            <td><span class="status status-success">返金済</span></td>
+                            <td>2025/04/10</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div style="margin-top: 1rem; text-align: right;">
+                    <button class="btn btn-warning"><i class="fas fa-file-export"></i> 一覧出力</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeRefundListModal()">閉じる</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notifications">
+        <!-- 動的に生成される通知 -->
+    </div>
+    
+    <script src="meal-fee-refund-js.js"></script>
+</body>
+</html>

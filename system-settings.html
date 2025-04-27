@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文京区給食費管理システム - システム設定</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="food-management-css.css">
+</head>
+<body>
+    <div class="header">
+        <h1>文京区給食費管理システム</h1>
+        <div class="user-info">
+            <span>管理者：田中 太郎</span>
+            <button class="logout-btn">ログアウト</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <ul class="nav-menu">
+               <li><a href="index.html" class="nav-item"><i class="fas fa-home"></i>ホーム</a></li>
+                <li><a href="bunkyo-user-management.html" class="nav-item active"><i class="fas fa-users"></i>喫食者情報</a></li>
+                <li><a href="food-management.html" class="nav-item"><i class="fas fa-utensils"></i>食数管理</a></li>
+                <li><a href="assessment-processing.html" class="nav-item"><i class="fas fa-calculator"></i>調定処理</a></li>
+                <li><a href="billing-processing.html" class="nav-item"><i class="fas fa-file-invoice"></i>請求処理</a></li>
+                <li><a href="payment-slip-creation.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i>納付書作成</a></li>
+                <li><a href="meal-fee-deposit.html" class="nav-item"><i class="fas fa-money-bill-wave"></i>給食費入金</a></li>
+                <li><a href="meal-fee-refund.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i>給食費返金</a></li>
+                <li><a href="accounts-receivable.html" class="nav-item"><i class="fas fa-exclamation-triangle"></i>未収金管理</a></li>
+                <li><a href="report-output.html" class="nav-item"><i class="fas fa-file-alt"></i>帳票出力</a></li>
+                <li><a href="system-settings.html" class="nav-item"><i class="fas fa-cog"></i>システム設定</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <h2 class="page-title"><i class="fas fa-cog"></i> システム設定</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">システム設定</div>
+                </div>
+                <div class="card-body">
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('tab-base')">基本設定</div>
+                        <div class="tab" onclick="switchTab('tab-user')">ユーザー管理</div>
+                        <div class="tab" onclick="switchTab('tab-school')">学校コード管理</div>
+                        <div class="tab" onclick="switchTab('tab-bank')">金融機関管理</div>
+                        <div class="tab" onclick="switchTab('tab-log')">ログ管理</div>
+                    </div>
+                    
+                    <!-- 基本設定タブ -->
+                    <div class="tab-content active" id="tab-base">
+                        <div class="form-group">
+                            <label class="form-label">システム名<span class="form-required">*</span></label>
+                            <input type="text" class="form-control" value="文京区給食費管理システム">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">年度設定<span class="form-required">*</span></label>
+                            <select class="form-select">
+                                <option>2025年度</option>
+                                <option>2024年度</option>
+                                <option>2023年度</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">通知設定</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" checked> システム通知を表示する</label>
+                                <label><input type="checkbox" checked> メール通知を送信する</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">外字管理</label>
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <button class="btn btn-primary"><i class="fas fa-font"></i> 外字ライブラリ管理</button>
+                                </div>
+                                <div class="form-col">
+                                    <span>現在の外字数: 534文字</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">電子公印設定</label>
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <input type="file" class="form-control">
+                                </div>
+                                <div class="form-col">
+                                    <button class="btn btn-primary"><i class="fas fa-upload"></i> 公印画像アップロード</button>
+                                </div>
+                            </div>
+                            <div class="alert alert-info" style="margin-top: 10px;">
+                                <i class="fas fa-info-circle"></i> 電子公印は300×300ピクセル、PNG形式で登録してください。
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">システムバックアップ</label>
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <button class="btn btn-warning"><i class="fas fa-database"></i> 今すぐバックアップ</button>
+                                </div>
+                                <div class="form-col">
+                                    <span>最終バックアップ: 2025年4月25日 22:30</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons" style="margin-top: 20px; text-align: center;">
+                            <button class="btn btn-success">保存</button>
+                            <button class="btn btn-danger">キャンセル</button>
+                        </div>
+                    </div>
+                    
+                    <!-- ユーザー管理タブ -->
+                    <div class="tab-content" id="tab-user">
+                        <div class="action-bar" style="margin-bottom: 20px;">
+                            <div class="search-container">
+                                <div class="search-field">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" placeholder="ユーザー名で検索">
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-success" onclick="openUserModal()"><i class="fas fa-user-plus"></i> 新規ユーザー追加</button>
+                            </div>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>ユーザー名</th>
+                                    <th>役割</th>
+                                    <th>所属</th>
+                                    <th>最終ログイン</th>
+                                    <th>ステータス</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1001</td>
+                                    <td>admin</td>
+                                    <td>システム管理者</td>
+                                    <td>文京区役所</td>
+                                    <td>2025/04/26 10:30</td>
+                                    <td><span class="status status-success">有効</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openUserEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon btn-icon-danger"><i class="fas fa-trash-alt"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>1002</td>
+                                    <td>tanaka</td>
+                                    <td>区担当者</td>
+                                    <td>文京区役所</td>
+                                    <td>2025/04/26 08:45</td>
+                                    <td><span class="status status-success">有効</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openUserEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon btn-icon-danger"><i class="fas fa-trash-alt"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>1003</td>
+                                    <td>yamada</td>
+                                    <td>区担当者</td>
+                                    <td>文京区役所</td>
+                                    <td>2025/04/25 16:20</td>
+                                    <td><span class="status status-success">有効</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openUserEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon btn-icon-danger"><i class="fas fa-trash-alt"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>1004</td>
+                                    <td>suzuki</td>
+                                    <td>学校担当者</td>
+                                    <td>文京第一小学校</td>
+                                    <td>2025/04/26 09:15</td>
+                                    <td><span class="status status-success">有効</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openUserEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon btn-icon-danger"><i class="fas fa-trash-alt"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>1005</td>
+                                    <td>sato</td>
+                                    <td>学校担当者</td>
+                                    <td>文京第二小学校</td>
+                                    <td>2025/04/24 14:50</td>
+                                    <td><span class="status status-warning">パスワード期限切れ</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openUserEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon btn-icon-danger"><i class="fas fa-trash-alt"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>1006</td>
+                                    <td>takahashi</td>
+                                    <td>学校担当者</td>
+                                    <td>文京第一中学校</td>
+                                    <td>2025/04/20 11:30</td>
+                                    <td><span class="status status-danger">無効</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openUserEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon btn-icon-danger"><i class="fas fa-trash-alt"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination">
+                            <div class="page-item"><i class="fas fa-angle-double-left"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-left"></i></div>
+                            <div class="page-item active">1</div>
+                            <div class="page-item">2</div>
+                            <div class="page-item"><i class="fas fa-angle-right"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-double-right"></i></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 学校コード管理タブ -->
+                    <div class="tab-content" id="tab-school">
+                        <div class="action-bar" style="margin-bottom: 20px;">
+                            <div class="search-container">
+                                <div class="search-field">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" placeholder="学校名で検索">
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-success" onclick="openSchoolModal()"><i class="fas fa-plus"></i> 新規学校追加</button>
+                                <button class="btn btn-warning"><i class="fas fa-file-export"></i> エクスポート</button>
+                                <button class="btn btn-primary"><i class="fas fa-file-import"></i> インポート</button>
+                            </div>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>学校コード</th>
+                                    <th>学校名</th>
+                                    <th>種別</th>
+                                    <th>住所</th>
+                                    <th>電話番号</th>
+                                    <th>状態</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>10001</td>
+                                    <td>文京第一小学校</td>
+                                    <td>小学校</td>
+                                    <td>文京区本郷1-1-1</td>
+                                    <td>03-1111-1111</td>
+                                    <td><span class="status status-success">有効</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openSchoolEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>10002</td>
+                                    <td>文京第二小学校</td>
+                                    <td>小学校</td>
+                                    <td>文京区本郷2-2-2</td>
+                                    <td>03-2222-2222</td>
+                                    <td><span class="status status-success">有効</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openSchoolEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>10003</td>
+                                    <td>文京第三小学校</td>
+                                    <td>小学校</td>
+                                    <td>文京区本郷3-3-3</td>
+                                    <td>03-3333-3333</td>
+                                    <td><span class="status status-success">有効</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openSchoolEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>20001</td>
+                                    <td>文京第一中学校</td>
+                                    <td>中学校</td>
+                                    <td>文京区本郷4-4-4</td>
+                                    <td>03-4444-4444</td>
+                                    <td><span class="status status-success">有効</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openSchoolEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>10004</td>
+                                    <td>文京第四小学校</td>
+                                    <td>小学校</td>
+                                    <td>文京区本郷5-5-5</td>
+                                    <td>03-5555-5555</td>
+                                    <td><span class="status status-danger">閉校</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openSchoolEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-history"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination">
+                            <div class="page-item"><i class="fas fa-angle-double-left"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-left"></i></div>
+                            <div class="page-item active">1</div>
+                            <div class="page-item">2</div>
+                            <div class="page-item"><i class="fas fa-angle-right"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-double-right"></i></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 金融機関管理タブ -->
+                    <div class="tab-content" id="tab-bank">
+                        <div class="action-bar" style="margin-bottom: 20px;">
+                            <div class="search-container">
+                                <div class="search-field">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" placeholder="金融機関名で検索">
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-success" onclick="openBankModal()"><i class="fas fa-plus"></i> 新規金融機関追加</button>
+                                <button class="btn btn-warning"><i class="fas fa-file-export"></i> エクスポート</button>
+                                <button class="btn btn-primary"><i class="fas fa-file-import"></i> インポート</button>
+                            </div>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>金融機関コード</th>
+                                    <th>金融機関名</th>
+                                    <th>金融機関名（カナ）</th>
+                                    <th>支店コード</th>
+                                    <th>支店名</th>
+                                    <th>支店名（カナ）</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>0001</td>
+                                    <td>三菱UFJ銀行</td>
+                                    <td>ミツビシユーエフジェイ</td>
+                                    <td>001</td>
+                                    <td>東京営業部</td>
+                                    <td>トウキョウエイギョウブ</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openBankEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-trash-alt"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>0005</td>
+                                    <td>三井住友銀行</td>
+                                    <td>ミツイスミトモ</td>
+                                    <td>001</td>
+                                    <td>東京営業部</td>
+                                    <td>トウキョウエイギョウブ</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openBankEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-trash-alt"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>0009</td>
+                                    <td>みずほ銀行</td>
+                                    <td>ミズホ</td>
+                                    <td>001</td>
+                                    <td>東京営業部</td>
+                                    <td>トウキョウエイギョウブ</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openBankEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-trash-alt"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>9900</td>
+                                    <td>ゆうちょ銀行</td>
+                                    <td>ユウチョ</td>
+                                    <td>001</td>
+                                    <td>本店</td>
+                                    <td>ホンテン</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openBankEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-trash-alt"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>0129</td>
+                                    <td>西京銀行</td>
+                                    <td>サイキョウ</td>
+                                    <td>001</td>
+                                    <td>東京支店</td>
+                                    <td>トウキョウ</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openBankEditModal()"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon"><i class="fas fa-trash-alt"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination">
+                            <div class="page-item"><i class="fas fa-angle-double-left"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-left"></i></div>
+                            <div class="page-item active">1</div>
+                            <div class="page-item">2</div>
+                            <div class="page-item">3</div>
+                            <div class="page-item"><i class="fas fa-angle-right"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-double-right"></i></div>
+                        </div>
+                    </div>
+                    
+                    <!-- ログ管理タブ -->
+                    <div class="tab-content" id="tab-log">
+                        <div class="action-bar" style="margin-bottom: 20px;">
+                            <div class="search-container">
+                                <div class="search-field">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" placeholder="ログ検索">
+                                </div>
+                                <div class="search-options">
+                                    <select>
+                                        <option>全てのログ</option>
+                                        <option>ログインログ</option>
+                                        <option>操作ログ</option>
+                                        <option>エラーログ</option>
+                                        <option>帳票出力ログ</option>
+                                        <option>CSVログ</option>
+                                    </select>
+                                    <input type="date" class="form-control" style="width: 150px;" value="2025-04-01">
+                                    <span style="margin: 0 5px;">～</span>
+                                    <input type="date" class="form-control" style="width: 150px;" value="2025-04-26">
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary"><i class="fas fa-search"></i> 検索</button>
+                                <button class="btn btn-warning"><i class="fas fa-file-export"></i> エクスポート</button>
+                            </div>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>日時</th>
+                                    <th>ログ種別</th>
+                                    <th>ユーザーID</th>
+                                    <th>ユーザー名</th>
+                                    <th>IP アドレス</th>
+                                    <th>操作内容</th>
+                                    <th>詳細</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2025/04/26 10:30:15</td>
+                                    <td><span class="badge badge-primary">ログイン</span></td>
+                                    <td>1001</td>
+                                    <td>admin</td>
+                                    <td>192.168.1.100</td>
+                                    <td>ログイン成功</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon" onclick="openLogDetailModal()"><i class="fas fa-eye"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025/04/26 10:35:22</td>
+                                    <td><span class="badge badge-success">操作</span></td>
+                                    <td>1001</td>
+                                    <td>admin</td>
+                                    <td>192.168.1.100</td>
+                                    <td>喫食者情報更新</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon" onclick="openLogDetailModal()"><i class="fas fa-eye"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025/04/26 10:40:05</td>
+                                    <td><span class="badge badge-success">操作</span></td>
+                                    <td>1001</td>
+                                    <td>admin</td>
+                                    <td>192.168.1.100</td>
+                                    <td>食数管理更新</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon" onclick="openLogDetailModal()"><i class="fas fa-eye"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025/04/26 10:45:30</td>
+                                    <td><span class="badge badge-warning">帳票出力</span></td>
+                                    <td>1001</td>
+                                    <td>admin</td>
+                                    <td>192.168.1.100</td>
+                                    <td>給食費納入通知書出力</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon" onclick="openLogDetailModal()"><i class="fas fa-eye"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025/04/26 10:50:18</td>
+                                    <td><span class="badge badge-danger">エラー</span></td>
+                                    <td>1001</td>
+                                    <td>admin</td>
+                                    <td>192.168.1.100</td>
+                                    <td>データベース接続エラー</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon" onclick="openLogDetailModal()"><i class="fas fa-eye"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025/04/26 11:00:45</td>
+                                    <td><span class="badge badge-secondary">CSV</span></td>
+                                    <td>1001</td>
+                                    <td>admin</td>
+                                    <td>192.168.1.100</td>
+                                    <td>未収金対象者一覧エクスポート</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon" onclick="openLogDetailModal()"><i class="fas fa-eye"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination">
+                            <div class="page-item"><i class="fas fa-angle-double-left"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-left"></i></div>
+                            <div class="page-item active">1</div>
+                            <div class="page-item">2</div>
+                            <div class="page-item">3</div>
+                            <div class="page-item"><i class="fas fa-angle-right"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-double-right"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：ユーザー追加/編集 -->
+    <div class="modal-backdrop" id="user-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">ユーザー管理</div>
+                <button class="modal-close" onclick="closeUserModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">ユーザーID<span class="form-required">*</span></label>
+                    <input type="text" class="form-control" placeholder="例：tanaka">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">パスワード<span class="form-required">*</span></label>
+                    <input type="password" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">パスワード（確認）<span class="form-required">*</span></label>
+                    <input type="password" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">氏名<span class="form-required">*</span></label>
+                    <input type="text" class="form-control" placeholder="例：田中 太郎">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">役割<span class="form-required">*</span></label>
+                    <select class="form-select">
+                        <option>システム管理者</option>
+                        <option>区担当者</option>
+                        <option>学校担当者</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">所属<span class="form-required">*</span></label>
+                    <select class="form-select">
+                        <option>文京区役所</option>
+                        <option>文京第一小学校</option>
+                        <option>文京第二小学校</option>
+                        <option>文京第三小学校</option>
+                        <option>文京第一中学校</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">メールアドレス</label>
+                    <input type="email" class="form-control" placeholder="例：tanaka@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">ステータス</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" checked> アカウントを有効にする</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success">保存</button>
+                <button class="btn btn-danger" onclick="closeUserModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：学校コード追加/編集 -->
+    <div class="modal-backdrop" id="school-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">学校管理</div>
+                <button class="modal-close" onclick="closeSchoolModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">学校コード<span class="form-required">*</span></label>
+                    <input type="text" class="form-control" placeholder="例：10001">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">学校名<span class="form-required">*</span></label>
+                    <input type="text" class="form-control" placeholder="例：文京第一小学校">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">種別<span class="form-required">*</span></label>
+                    <select class="form-select">
+                        <option>小学校</option>
+                        <option>中学校</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">郵便番号</label>
+                    <input type="text" class="form-control" placeholder="例：113-0033">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">住所<span class="form-required">*</span></label>
+                    <input type="text" class="form-control" placeholder="例：文京区本郷1-1-1">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">電話番号<span class="form-required">*</span></label>
+                    <input type="text" class="form-control" placeholder="例：03-1111-1111">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">FAX番号</label>
+                    <input type="text" class="form-control" placeholder="例：03-1111-1112">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">状態</label>
+                    <select class="form-select">
+                        <option>有効</option>
+                        <option>閉校</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success">保存</button>
+                <button class="btn btn-danger" onclick="closeSchoolModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：金融機関追加/編集 -->
+    <div class="modal-backdrop" id="bank-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">金融機関管理</div>
+                <button class="modal-close" onclick="closeBankModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">金融機関コード<span class="form-required">*</span></label>
+                    <input type="text" class="form-control" placeholder="例：0001">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">金融機関名<span class="form-required">*</span></label>
+                    <input type="text" class="form-control" placeholder="例：三菱UFJ銀行">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">金融機関名（カナ）<span class="form-required">*</span></label>
+                    <input type="text" class="form-control" placeholder="例：ミツビシユーエフジェイ">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">支店コード<span class="form-required">*</span></label>
+                    <input type="text" class="form-control" placeholder="例：001">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">支店名<span class="form-required">*</span></label>
+                    <input type="text" class="form-control" placeholder="例：東京営業部">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">支店名（カナ）<span class="form-required">*</span></label>
+                    <input type="text" class="form-control" placeholder="例：トウキョウエイギョウブ">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success">保存</button>
+                <button class="btn btn-danger" onclick="closeBankModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：ログ詳細 -->
+    <div class="modal-backdrop" id="log-detail-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">ログ詳細</div>
+                <button class="modal-close" onclick="closeLogDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">日時</label>
+                    <div>2025/04/26 10:30:15</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">ログ種別</label>
+                    <div><span class="badge badge-primary">ログイン</span></div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">ユーザー情報</label>
+                    <div>ID: 1001, 名前: admin</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">IP アドレス</label>
+                    <div>192.168.1.100</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">操作内容</label>
+                    <div>ログイン成功</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">ブラウザ情報</label>
+                    <div>Chrome 110.0.5481.177 / Windows 11</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">詳細情報</label>
+                    <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 4px; overflow: auto; max-height: 200px;">
+{
+  "event": "login",
+  "status": "success",
+  "session_id": "abc123xyz456",
+  "login_method": "password",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.5481.177 Safari/537.36",
+  "timestamp": "2025-04-26T10:30:15.123Z"
+}
+                    </pre>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeLogDetailModal()">閉じる</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notifications">
+        <!-- 通知が表示される場所 -->
+    </div>
+    
+    <script src="system-settings-js.js"></script>
+</body>
+</html>
