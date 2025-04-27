@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文京区給食費管理システム - 未収金管理</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="food-management-css.css">
+ 
+</head>
+<body>
+    <div class="header">
+        <h1>文京区給食費管理システム</h1>
+        <div class="user-info">
+            <span>管理者：田中 太郎</span>
+            <button class="logout-btn">ログアウト</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item"><i class="fas fa-home"></i>ホーム</a></li>
+                <li><a href="bunkyo-user-management.html" class="nav-item"><i class="fas fa-users"></i>喫食者情報</a></li>
+                <li><a href="food-management.html" class="nav-item"><i class="fas fa-utensils"></i>食数管理</a></li>
+                <li><a href="assessment-processing.html" class="nav-item"><i class="fas fa-calculator"></i>調定処理</a></li>
+                <li><a href="billing-processing.html" class="nav-item"><i class="fas fa-file-invoice"></i>請求処理</a></li>
+                <li><a href="payment-slip-creation.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i>納付書作成</a></li>
+                <li><a href="meal-fee-deposit.html" class="nav-item"><i class="fas fa-money-bill-wave"></i>給食費入金</a></li>
+                <li><a href="meal-fee-refund.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i>給食費返金</a></li>
+                <li><a href="accounts-receivable.html" class="nav-item active"><i class="fas fa-exclamation-triangle"></i>未収金管理</a></li>
+                <li><a href="report-output.html" class="nav-item"><i class="fas fa-file-alt"></i>帳票出力</a></li>
+                <li><a href="system-settings.html" class="nav-item"><i class="fas fa-cog"></i>システム設定</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <h2 class="page-title"><i class="fas fa-exclamation-triangle"></i> 未収金管理</h2>
+            
+            <!-- 統計カード -->
+            <div class="stat-cards">
+                <div class="stat-card-col">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">現年度未収金総額</div>
+                            <div class="stat-icon stat-icon-danger">
+                                <i class="fas fa-yen-sign"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">¥2,345,000</div>
+                        <div class="stat-footer">
+                            <div class="stat-change stat-change-negative">
+                                <i class="fas fa-arrow-up"></i> 5.2%
+                            </div>
+                            <div class="stat-period">前月比</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card-col">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">未収金対象者</div>
+                            <div class="stat-icon stat-icon-primary">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">128</div>
+                    </div>
+                </div>
+                <div class="stat-card-col">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">時効間近案件</div>
+                            <div class="stat-icon stat-icon-warning">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">15</div>
+                    </div>
+                </div>
+                <div class="stat-card-col">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">当月不納欠損処理</div>
+                            <div class="stat-icon stat-icon-success">
+                                <i class="fas fa-file-invoice"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">¥78,500</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- フィルタセクション -->
+            <div class="filter-section">
+                <div class="filter-title">検索条件</div>
+                <div class="filter-row">
+                    <div class="filter-col">
+                        <div class="form-group">
+                            <label class="form-label">学校</label>
+                            <select class="form-select">
+                                <option>全ての学校</option>
+                                <option>文京第一小学校</option>
+                                <option>文京第二小学校</option>
+                                <option>文京第三小学校</option>
+                                <option>文京第一中学校</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="filter-col">
+                        <div class="form-group">
+                            <label class="form-label">学年</label>
+                            <select class="form-select">
+                                <option>全ての学年</option>
+                                <option>1年</option>
+                                <option>2年</option>
+                                <option>3年</option>
+                                <option>4年</option>
+                                <option>5年</option>
+                                <option>6年</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="filter-col">
+                        <div class="form-group">
+                            <label class="form-label">未収期間</label>
+                            <select class="form-select">
+                                <option>全期間</option>
+                                <option>1ヶ月以上</option>
+                                <option>3ヶ月以上</option>
+                                <option>6ヶ月以上</option>
+                                <option>1年以上</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <div class="filter-col">
+                        <div class="form-group">
+                            <label class="form-label">検索</label>
+                            <div class="search-field">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="氏名、ID等で検索">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="filter-col">
+                        <div class="form-group">
+                            <label class="form-label">&nbsp;</label>
+                            <button class="btn btn-primary" style="width: 100%;"><i class="fas fa-search"></i> 検索</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- アクションボタン -->
+            <div class="action-box">
+                <div class="batch-action-buttons">
+                    <button class="btn btn-primary" onclick="openBatchNoticeModal()"><i class="fas fa-envelope"></i> 一括通知作成</button>
+                    <button class="btn btn-warning" onclick="openStatuteModal()"><i class="fas fa-clock"></i> 時効管理</button>
+                    <button class="btn btn-danger" onclick="openBadDebtModal()"><i class="fas fa-times-circle"></i> 不納欠損処理</button>
+                    <button class="btn btn-success"><i class="fas fa-file-export"></i> エクスポート</button>
+                </div>
+            </div>
+            
+            <!-- 未収金テーブル -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">未収金一覧</div>
+                </div>
+                <div class="card-body">
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('tab-all')">全件</div>
+                        <div class="tab" onclick="switchTab('tab-current')">現年度分</div>
+                        <div class="tab" onclick="switchTab('tab-past')">過年度分</div>
+                        <div class="tab" onclick="switchTab('tab-statute')">時効間近</div>
+                    </div>
+                    
+                    <div class="tab-content active" id="tab-all">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="select-all"></th>
+                                    <th>ID</th>
+                                    <th>氏名</th>
+                                    <th>学校</th>
+                                    <th>未収金額</th>
+                                    <th>最古請求月</th>
+                                    <th>時効期限</th>
+                                    <th>分納状況</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox" name="selected[]" value="2025001"></td>
+                                    <td>2025001</td>
+                                    <td>山田 太郎</td>
+                                    <td>文京第一小学校</td>
+                                    <td><span class="amount-badge amount-badge-danger">¥32,800</span></td>
+                                    <td>2024年4月</td>
+                                    <td>2027年3月31日</td>
+                                    <td><span class="status status-info">分納中</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openDetailModal('2025001')"><i class="fas fa-eye"></i></button>
+                                            <button class="btn-icon" onclick="openPaymentPlanModal('2025001')"><i class="fas fa-calendar-alt"></i></button>
+                                            <button class="btn-icon" onclick="openNoticeModal('2025001')"><i class="fas fa-envelope"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" name="selected[]" value="2025003"></td>
+                                    <td>2025003</td>
+                                    <td>鈴木 花子</td>
+                                    <td>文京第一小学校</td>
+                                    <td><span class="amount-badge amount-badge-danger">¥58,900</span></td>
+                                    <td>2023年9月</td>
+                                    <td><span class="statute-warning">2025年9月30日</span></td>
+                                    <td><span class="status status-success">対応中</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openDetailModal('2025003')"><i class="fas fa-eye"></i></button>
+                                            <button class="btn-icon" onclick="openPaymentPlanModal('2025003')"><i class="fas fa-calendar-alt"></i></button>
+                                            <button class="btn-icon" onclick="openNoticeModal('2025003')"><i class="fas fa-envelope"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" name="selected[]" value="2025005"></td>
+                                    <td>2025005</td>
+                                    <td>高橋 真理</td>
+                                    <td>文京第二小学校</td>
+                                    <td><span class="amount-badge amount-badge-danger">¥45,200</span></td>
+                                    <td>2023年4月</td>
+                                    <td><span class="statute-danger">2025年4月30日</span></td>
+                                    <td><span class="status status-info">分納中</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn-icon btn-icon-primary" onclick="openDetailModal('2025005')"><i class="fas fa-eye"></i></button>
+                                            <button class="btn-icon" onclick="openPaymentPlanModal('2025005')"><i class="fas fa-calendar-alt"></i></button>
+                                            <button class="btn-icon" onclick="openNoticeModal('2025005')"><i class="fas fa-envelope"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination">
+                            <div class="page-item"><i class="fas fa-angle-double-left"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-left"></i></div>
+                            <div class="page-item active">1</div>
+                            <div class="page-item">2</div>
+                            <div class="page-item">3</div>
+                            <div class="page-item"><i class="fas fa-angle-right"></i></div>
+                            <div class="page-item"><i class="fas fa-angle-double-right"></i></div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="tab-current">
+                        <!-- 現年度分の未収金データ -->
+                    </div>
+                    
+                    <div class="tab-content" id="tab-past">
+                        <!-- 過年度分の未収金データ -->
+                    </div>
+                    
+                    <div class="tab-content" id="tab-statute">
+                        <!-- 時効間近の未収金データ -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：詳細表示 -->
+    <div class="modal-backdrop" id="detail-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">未収金詳細</div>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label class="form-label">ID</label>
+                            <input type="text" class="form-control" value="2025001" disabled>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label class="form-label">氏名</label>
+                            <input type="text" class="form-control" value="山田 太郎" disabled>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label class="form-label">学校</label>
+                            <input type="text" class="form-control" value="文京第一小学校" disabled>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label class="form-label">学年・クラス</label>
+                            <input type="text" class="form-control" value="3年1組" disabled>
+                        </div>
+                    </div>
+                </div>
+                
+                <table style="margin-top: 1rem;">
+                    <thead>
+                        <tr>
+                            <th>請求月</th>
+                            <th>請求額</th>
+                            <th>入金額</th>
+                            <th>未納額</th>
+                            <th>時効期限</th>
+                            <th>督促状況</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2024年4月</td>
+                            <td>¥4,600</td>
+                            <td>¥0</td>
+                            <td>¥4,600</td>
+                            <td>2027年4月30日</td>
+                            <td><span class="badge badge-danger">督促状送付済</span></td>
+                        </tr>
+                        <tr>
+                            <td>2024年5月</td>
+                            <td>¥4,600</td>
+                            <td>¥0</td>
+                            <td>¥4,600</td>
+                            <td>2027年5月31日</td>
+                            <td><span class="badge badge-danger">督促状送付済</span></td>
+                        </tr>
+                        <tr>
+                            <td>2024年6月</td>
+                            <td>¥4,600</td>
+                            <td>¥0</td>
+                            <td>¥4,600</td>
+                            <td>2027年6月30日</td>
+                            <td><span class="badge badge-danger">督促状送付済</span></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-row">
+                            <td>合計</td>
+                            <td>¥13,800</td>
+                            <td>¥0</td>
+                            <td>¥13,800</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                    </tfoot>
+                </table>
+                
+                <!-- 分納計画表示セクション -->
+                <div class="payment-plan">
+                    <div class="payment-plan-header">
+                        <div class="payment-plan-title">分納計画</div>
+                        <button class="btn-icon" onclick="openPaymentPlanModal('2025001')"><i class="fas fa-edit"></i></button>
+                    </div>
+                    <div class="payment-installment">
+                        <div>第1回：2025年5月10日</div>
+                        <div>¥5,000</div>
+                        <div><span class="badge badge-primary">未払い</span></div>
+                    </div>
+                    <div class="payment-installment">
+                        <div>第2回：2025年6月10日</div>
+                        <div>¥5,000</div>
+                        <div><span class="badge badge-primary">未払い</span></div>
+                    </div>
+                    <div class="payment-installment">
+                        <div>第3回：2025年7月10日</div>
+                        <div>¥3,800</div>
+                        <div><span class="badge badge-primary">未払い</span></div>
+                    </div>
+                </div>
+                
+                <!-- 時効情報セクション -->
+                <div class="form-group">
+                    <label class="form-label">時効中断情報</label>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>中断日</th>
+                                <th>中断理由</th>
+                                <th>更新者</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2024年8月15日</td>
+                                <td>分納誓約書提出</td>
+                                <td>田中 太郎</td>
+                                <td>
+                                    <button class="btn-icon"><i class="fas fa-trash-alt"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="openStatuteInterruptModal('2025001')">時効中断追加</button>
+                </div>
+                
+                <!-- 交渉記録セクション -->
+                <div class="form-group">
+                    <label class="form-label">交渉記録</label>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-date">2024年8月15日 14:30</div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">電話連絡</div>
+                                <div class="timeline-body">
+                                    保護者と連絡が取れ、分納での支払いに合意。9月から毎月5,000円ずつ支払うことで合意し、分納誓約書を送付予定。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="openNoticeModal('2025001')">通知作成</button>
+                <button class="btn btn-primary" onclick="openPaymentPlanModal('2025001')">分納設定</button>
+                <button class="btn btn-warning" onclick="openStatuteInterruptModal('2025001')">時効中断</button>
+                <button class="btn btn-danger" onclick="closeDetailModal()">閉じる</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：分納計画設定 -->
+    <div class="modal-backdrop" id="payment-plan-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">分納計画設定</div>
+                <button class="modal-close" onclick="closePaymentPlanModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">対象者</label>
+                    <input type="text" class="form-control" value="山田 太郎" disabled>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label class="form-label">未収総額</label>
+                            <input type="text" class="form-control" value="¥13,800" disabled>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label class="form-label">分納回数</label>
+                            <select class="form-select" id="installment-count">
+                                <option>1回</option>
+                                <option>2回</option>
+                                <option selected>3回</option>
+                                <option>4回</option>
+                                <option>5回</option>
+                                <option>6回</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">初回支払日</label>
+                    <input type="date" class="form-control" value="2025-05-10">
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>回数</th>
+                            <th>支払期日</th>
+                            <th>金額</th>
+                        </tr>
+                    </thead>
+                    <tbody id="installment-table">
+                        <tr>
+                            <td>第1回</td>
+                            <td>2025年5月10日</td>
+                            <td><input type="number" class="form-control" value="5000"></td>
+                        </tr>
+                        <tr>
+                            <td>第2回</td>
+                            <td>2025年6月10日</td>
+                            <td><input type="number" class="form-control" value="5000"></td>
+                        </tr>
+                        <tr>
+                            <td>第3回</td>
+                            <td>2025年7月10日</td>
+                            <td><input type="number" class="form-control" value="3800"></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-row">
+                            <td colspan="2">合計</td>
+                            <td>¥13,800</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success">分納計画保存</button>
+                <button class="btn btn-primary">分納誓約書作成</button>
+                <button class="btn btn-danger" onclick="closePaymentPlanModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：通知作成 -->
+    <div class="modal-backdrop" id="notice-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">通知作成</div>
+                <button class="modal-close" onclick="closeNoticeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">対象者</label>
+                    <input type="text" class="form-control" value="山田 太郎" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">通知種類<span class="form-required">*</span></label>
+                    <select class="form-select" id="notice-type">
+                        <option value="reminder">督促状</option>
+                        <option value="demand">催告書</option>
+                        <option value="payment-plan">分割納付誓約書</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">対象期間<span class="form-required">*</span></label>
+                    <select class="form-select" multiple size="3">
+                        <option selected>2024年4月</option>
+                        <option selected>2024年5月</option>
+                        <option selected>2024年6月</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">納期限<span class="form-required">*</span></label>
+                    <input type="date" class="form-control" value="2025-05-31">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success">通知作成・保存</button>
+                <button class="btn btn-primary">プレビュー</button>
+                <button class="btn btn-danger" onclick="closeNoticeModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：時効中断追加 -->
+    <div class="modal-backdrop" id="statute-interrupt-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">時効中断登録</div>
+                <button class="modal-close" onclick="closeStatuteInterruptModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">対象者</label>
+                    <input type="text" class="form-control" value="山田 太郎" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">時効中断日<span class="form-required">*</span></label>
+                    <input type="date" class="form-control" value="2025-04-27">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">中断理由<span class="form-required">*</span></label>
+                    <select class="form-select">
+                        <option>督促状送付</option>
+                        <option>催告書送付</option>
+                        <option>分納誓約書提出</option>
+                        <option>入金あり</option>
+                        <option>その他</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">備考</label>
+                    <textarea class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success">登録</button>
+                <button class="btn btn-danger" onclick="closeStatuteInterruptModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル：不納欠損処理 -->
+    <div class="modal-backdrop" id="bad-debt-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">不納欠損処理</div>
+                <button class="modal-close" onclick="closeBadDebtModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> 不納欠損処理を行うと、対象の未収金が欠損処理され、未収金一覧から除外されます。この操作は元に戻せません。
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">時効対象データ</label>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="select-all-time-limit"></th>
+                                <th>ID</th>
+                                <th>氏名</th>
+                                <th>最古請求月</th>
+                                <th>時効日</th>
+                                <th>金額</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="checkbox" checked></td>
+                                <td>2025005</td>
+                                <td>高橋 真理</td>
+                                <td>2023年4月</td>
+                                <td>2025年4月30日</td>
+                                <td>¥4,800</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">不納欠損理由<span class="form-required">*</span></label>
+                    <select class="form-select">
+                        <option>時効による消滅</option>
+                        <option>死亡</option>
+                        <option>行方不明</option>
+                        <option>生活困窮</option>
+                        <option>その他</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">備考</label>
+                    <textarea class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger">不納欠損処理実行</button>
+                <button class="btn btn-primary" onclick="closeBadDebtModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    // タブ切り替え関数
+    function switchTab(tabId) {
+        const tabContents = document.querySelectorAll('.tab-content');
+        tabContents.forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        document.getElementById(tabId).classList.add('active');
+        
+        const tabs = document.querySelectorAll('.tabs .tab');
+        tabs.forEach(tab => {
+            tab.classList.remove('active');
+            if(tab.getAttribute('onclick').includes(tabId)) {
+                tab.classList.add('active');
+            }
+        });
+    }
+    
+    // 詳細モーダルを開く
+    function openDetailModal(id) {
+        document.getElementById('detail-modal').style.display = 'flex';
+    }
+    
+    // 詳細モーダルを閉じる
+    function closeDetailModal() {
+        document.getElementById('detail-modal').style.display = 'none';
+    }
+    
+    // 分納計画モーダルを開く
+    function openPaymentPlanModal(id) {
+        document.getElementById('payment-plan-modal').style.display = 'flex';
+    }
+    
+    // 分納計画モーダルを閉じる
+    function closePaymentPlanModal() {
+        document.getElementById('payment-plan-modal').style.display = 'none';
+    }
+    
+    // 通知作成モーダルを開く
+    function openNoticeModal(id) {
+        document.getElementById('notice-modal').style.display = 'flex';
+    }
+    
+    // 通知作成モーダルを閉じる
+    function closeNoticeModal() {
+        document.getElementById('notice-modal').style.display = 'none';
+    }
+    
+    // 時効中断モーダルを開く
+    function openStatuteInterruptModal(id) {
+        document.getElementById('statute-interrupt-modal').style.display = 'flex';
+    }
+    
+    // 時効中断モーダルを閉じる
+    function closeStatuteInterruptModal() {
+        document.getElementById('statute-interrupt-modal').style.display = 'none';
+    }
+    
+    // 不納欠損処理モーダルを開く
+    function openBadDebtModal() {
+        document.getElementById('bad-debt-modal').style.display = 'flex';
+    }
+    
+    // 不納欠損処理モーダルを閉じる
+    function closeBadDebtModal() {
+        document.getElementById('bad-debt-modal').style.display = 'none';
+    }
+    
+    // 一括通知モーダルを開く
+    function openBatchNoticeModal() {
+        // 実装予定
+        alert('一括通知機能は開発中です');
+    }
+    
+    // 時効管理モーダルを開く
+    function openStatuteModal() {
+        // 実装予定
+        alert('時効管理機能は開発中です');
+    }
+    
+    // 全選択機能
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAllCheckbox = document.getElementById('select-all');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('input[name="selected[]"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = selectAllCheckbox.checked;
+                });
+            });
+        }
+    });
+    </script>
+</body>
+</html>
