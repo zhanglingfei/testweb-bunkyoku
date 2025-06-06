@@ -1,533 +1,356 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文京区給食費管理システム</title>
+    <title>Medical Video Security Threat Matrix</title>
     <style>
-        :root {
-            --primary-color: #005AA0;
-            --secondary-color: #F58220;
-            --light-gray: #f5f5f5;
-            --medium-gray: #e0e0e0;
-            --dark-gray: #333333;
-            --success-color: #4CAF50;
-            --warning-color: #FFC107;
-            --danger-color: #F44336;
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
         }
-        
+
         body {
-            background-color: #f8f9fa;
-            color: var(--dark-gray);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
         }
-        
-        .header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .user-info span {
-            font-size: 0.9rem;
-        }
-        
-        .logout-btn {
-            background-color: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        
-        .logout-btn:hover {
-            background-color: rgba(255,255,255,0.3);
-        }
-        
+
         .container {
-            display: flex;
-            min-height: calc(100vh - 64px);
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
-        
-        .sidebar {
-            width: 250px;
-            background-color: white;
-            border-right: 1px solid var(--medium-gray);
-            padding: 1.5rem 0;
-        }
-        
-        .nav-menu {
-            list-style: none;
-        }
-        
-        .nav-item {
-            padding: 0.5rem 1.5rem;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            color: var(--dark-gray);
-            text-decoration: none;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
-        }
-        
-        .nav-item:hover {
-            background-color: var(--light-gray);
-            border-left: 3px solid var(--secondary-color);
-        }
-        
-        .nav-item.active {
-            background-color: var(--light-gray);
-            border-left: 3px solid var(--primary-color);
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-        
-        .nav-item i {
-            width: 20px;
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
             text-align: center;
         }
-        
-        .main-content {
-            flex: 1;
-            padding: 2rem;
-            background-color: #f8f9fa;
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 10px;
         }
-        
-        .page-title {
-            margin-bottom: 1.5rem;
-            color: var(--primary-color);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .card {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 1.5rem;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .card-title {
+
+        .header p {
             font-size: 1.1rem;
-            color: var(--primary-color);
-            font-weight: 600;
+            opacity: 0.9;
         }
-        
-        .card-icon {
-            width: 40px;
-            height: 40px;
-            background-color: var(--light-gray);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--primary-color);
+
+        .matrix-container {
+            padding: 30px;
         }
-        
-        .value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .change {
-            font-size: 0.9rem;
-            color: var(--success-color);
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-        
-        .decrease {
-            color: var(--danger-color);
-        }
-        
-        .recent-section {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .section-title {
-            font-size: 1.1rem;
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-        
-        .view-all {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-        
-        table {
+
+        .matrix-table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
         }
-        
-        th {
-            text-align: left;
-            padding: 0.75rem 1rem;
-            background-color: var(--light-gray);
-            color: var(--dark-gray);
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        
-        td {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--medium-gray);
-            font-size: 0.9rem;
-        }
-        
-        tr:last-child td {
-            border-bottom: none;
-        }
-        
-        .status {
-            padding: 0.25rem 0.5rem;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-        
-        .status-success {
-            background-color: rgba(76, 175, 80, 0.1);
-            color: var(--success-color);
-        }
-        
-        .status-warning {
-            background-color: rgba(255, 193, 7, 0.1);
-            color: var(--warning-color);
-        }
-        
-        .status-danger {
-            background-color: rgba(244, 67, 54, 0.1);
-            color: var(--danger-color);
-        }
-        
-        .chart-container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 1.5rem;
-        }
-        
-        .notifications {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            z-index: 1000;
-        }
-        
-        .notification {
-            background-color: white;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-            width: 300px;
-            animation: slideIn 0.3s ease;
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        .notification-icon {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+
+        .matrix-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            flex-shrink: 0;
-        }
-        
-        .notification-success {
-            background-color: var(--success-color);
-        }
-        
-        .notification-content {
-            flex: 1;
-        }
-        
-        .notification-title {
+            padding: 15px;
+            text-align: center;
             font-weight: 600;
-            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
         }
-        
-        .notification-message {
+
+        .matrix-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: middle;
+        }
+
+        .matrix-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .matrix-table tr:hover {
+            background-color: #e3f2fd;
+            transform: translateY(-1px);
+            transition: all 0.3s ease;
+        }
+
+        .threat-type {
+            text-align: left !important;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .risk-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
+            display: inline-block;
+            min-width: 70px;
+        }
+
+        .risk-low { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .risk-medium { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .risk-high { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .risk-critical { background: linear-gradient(135deg, #8e44ad, #9b59b6); }
+
+        .protection-level {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .protection-excellent { background: #27ae60; }
+        .protection-good { background: #2ecc71; }
+        .protection-fair { background: #f39c12; }
+        .protection-poor { background: #e74c3c; }
+
+        .probability, .impact {
+            font-weight: 500;
+        }
+
+        .probability-high, .impact-critical { color: #e74c3c; }
+        .probability-medium, .impact-high { color: #f39c12; }
+        .probability-low, .impact-medium { color: #27ae60; }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .legend-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .legend-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-top: 4px solid #3498db;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
             font-size: 0.9rem;
-            color: #666;
         }
-        
-        .notification-close {
-            background: none;
-            border: none;
-            color: #999;
-            cursor: pointer;
-            font-size: 1.2rem;
-            line-height: 1;
+
+        @media (max-width: 768px) {
+            .matrix-table {
+                font-size: 0.8rem;
+            }
+            
+            .matrix-table th,
+            .matrix-table td {
+                padding: 8px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
         }
     </style>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="header">
-        <h1>文京区給食費管理システム</h1>
-        <div class="user-info">
-            <span>管理者：田中 太郎</span>
-            <button class="logout-btn">ログアウト</button>
-        </div>
-    </div>
-    
     <div class="container">
-        <div class="sidebar">
-            <ul class="nav-menu">
-                <li><a href="index.html" class="nav-item"><i class="fas fa-home"></i>ホーム</a></li>
-                <li><a href="bunkyo-user-management.html" class="nav-item active"><i class="fas fa-users"></i>喫食者情報</a></li>
-                <li><a href="food-management.html" class="nav-item"><i class="fas fa-utensils"></i>食数管理</a></li>
-                <li><a href="assessment-processing.html" class="nav-item"><i class="fas fa-calculator"></i>調定処理</a></li>
-                <li><a href="billing-processing.html" class="nav-item"><i class="fas fa-file-invoice"></i>請求処理</a></li>
-                <li><a href="payment-slip-creation.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i>納付書作成</a></li>
-                <li><a href="meal-fee-deposit.html" class="nav-item"><i class="fas fa-money-bill-wave"></i>給食費入金</a></li>
-                <li><a href="meal-fee-refund.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i>給食費返金</a></li>
-                <li><a href="accounts-receivable.html" class="nav-item"><i class="fas fa-exclamation-triangle"></i>未収金管理</a></li>
-                <li><a href="report-output.html" class="nav-item"><i class="fas fa-file-alt"></i>帳票出力</a></li>
-                <li><a href="system-settings.html" class="nav-item"><i class="fas fa-cog"></i>システム設定</a></li>
-            </ul>
+        <div class="header">
+            <h1>🔒 Medical Video Security Threat Matrix</h1>
+            <p>Comprehensive Risk Assessment for Healthcare Video Systems</p>
         </div>
-        
-        <div class="main-content">
-            <h2 class="page-title"><i class="fas fa-tachometer-alt"></i> ダッシュボード</h2>
-            
-            <div class="dashboard">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">今月の調定総額</div>
-                        <div class="card-icon"><i class="fas fa-yen-sign"></i></div>
+
+        <div class="matrix-container">
+            <table class="matrix-table">
+                <thead>
+                    <tr>
+                        <th>Threat Type</th>
+                        <th>Probability</th>
+                        <th>Impact Level</th>
+                        <th>Technical Protection</th>
+                        <th>Overall Risk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="threat-type">🌐 Network Transmission Interception</td>
+                        <td class="probability probability-medium">Medium</td>
+                        <td class="impact impact-critical">Critical</td>
+                        <td><span class="protection-level protection-excellent">100%</span></td>
+                        <td><span class="risk-badge risk-low">Low Risk</span></td>
+                    </tr>
+                    <tr>
+                        <td class="threat-type">🖥️ Server Breach/Intrusion</td>
+                        <td class="probability probability-low">Low</td>
+                        <td class="impact impact-critical">Critical</td>
+                        <td><span class="protection-level protection-excellent">95%</span></td>
+                        <td><span class="risk-badge risk-medium">Medium Risk</span></td>
+                    </tr>
+                    <tr>
+                        <td class="threat-type">📱 Device Loss/Theft</td>
+                        <td class="probability probability-high">High</td>
+                        <td class="impact impact-high">High</td>
+                        <td><span class="protection-level protection-good">70%</span></td>
+                        <td><span class="risk-badge risk-medium">Medium Risk</span></td>
+                    </tr>
+                    <tr>
+                        <td class="threat-type">🦠 Malware Infection</td>
+                        <td class="probability probability-medium">Medium</td>
+                        <td class="impact impact-high">High</td>
+                        <td><span class="protection-level protection-fair">60%</span></td>
+                        <td><span class="risk-badge risk-medium">Medium Risk</span></td>
+                    </tr>
+                    <tr>
+                        <td class="threat-type">📹 Screen Recording/Capture</td>
+                        <td class="probability probability-high">High</td>
+                        <td class="impact impact-medium">Medium</td>
+                        <td><span class="protection-level protection-poor">30%</span></td>
+                        <td><span class="risk-badge risk-high">High Risk</span></td>
+                    </tr>
+                    <tr>
+                        <td class="threat-type">👥 Insider Threat/Malicious Staff</td>
+                        <td class="probability probability-medium">Medium</td>
+                        <td class="impact impact-critical">Critical</td>
+                        <td><span class="protection-level protection-poor">40%</span></td>
+                        <td><span class="risk-badge risk-high">High Risk</span></td>
+                    </tr>
+                    <tr>
+                        <td class="threat-type">🎭 Social Engineering</td>
+                        <td class="probability probability-high">High</td>
+                        <td class="impact impact-high">High</td>
+                        <td><span class="protection-level protection-poor">20%</span></td>
+                        <td><span class="risk-badge risk-critical">Critical Risk</span></td>
+                    </tr>
+                    <tr>
+                        <td class="threat-type">🔐 Physical Access Attack</td>
+                        <td class="probability probability-low">Low</td>
+                        <td class="impact impact-critical">Critical</td>
+                        <td><span class="protection-level protection-poor">20%</span></td>
+                        <td><span class="risk-badge risk-medium">Medium Risk</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="summary-stats">
+                <div class="stat-card">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Network Protection</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">70%</div>
+                    <div class="stat-label">Average Technical Protection</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3/8</div>
+                    <div class="stat-label">High Risk Threats</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">80%</div>
+                    <div class="stat-label">Human Factor Threats</div>
+                </div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-section">
+                    <h3>🎯 Risk Levels</h3>
+                    <div class="legend-item">
+                        <div class="legend-color risk-low"></div>
+                        <span>Low Risk - Technical controls effective</span>
                     </div>
-                    <div class="value">15,234,560円</div>
-                    <div class="change"><i class="fas fa-arrow-up"></i> 前月比 2.3%増</div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">今月の収納率</div>
-                        <div class="card-icon"><i class="fas fa-percentage"></i></div>
+                    <div class="legend-item">
+                        <div class="legend-color risk-medium"></div>
+                        <span>Medium Risk - Moderate protection needed</span>
                     </div>
-                    <div class="value">97.8%</div>
-                    <div class="change"><i class="fas fa-arrow-up"></i> 前月比 0.5%増</div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">未収金額</div>
-                        <div class="card-icon"><i class="fas fa-exclamation-circle"></i></div>
+                    <div class="legend-item">
+                        <div class="legend-color risk-high"></div>
+                        <span>High Risk - Additional controls required</span>
                     </div>
-                    <div class="value">328,500円</div>
-                    <div class="change decrease"><i class="fas fa-arrow-down"></i> 前月比 5.2%減</div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">喫食者総数</div>
-                        <div class="card-icon"><i class="fas fa-user-friends"></i></div>
+                    <div class="legend-item">
+                        <div class="legend-color risk-critical"></div>
+                        <span>Critical Risk - Immediate attention needed</span>
                     </div>
-                    <div class="value">8,452人</div>
-                    <div class="change"><i class="fas fa-arrow-up"></i> 前月比 15人増</div>
+                </div>
+
+                <div class="legend-section">
+                    <h3>🛡️ Protection Effectiveness</h3>
+                    <div class="legend-item">
+                        <div class="legend-color protection-excellent"></div>
+                        <span>90-100% - Excellent Protection</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color protection-good"></div>
+                        <span>70-89% - Good Protection</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color protection-fair"></div>
+                        <span>50-69% - Fair Protection</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color protection-poor"></div>
+                        <span>Below 50% - Poor Protection</span>
+                    </div>
+                </div>
+
+                <div class="legend-section">
+                    <h3>⚠️ Key Insights</h3>
+                    <div style="line-height: 1.6;">
+                        <p><strong>Technical encryption</strong> provides excellent protection against external threats but limited defense against human factors.</p>
+                        <br>
+                        <p><strong>80% of medical data breaches</strong> originate from internal personnel rather than external attacks.</p>
+                        <br>
+                        <p><strong>Multi-layered approach</strong> combining technology, policy, and training is essential for comprehensive security.</p>
+                    </div>
                 </div>
             </div>
-            
-            <div class="recent-section">
-                <div class="section-header">
-                    <div class="section-title">最近の処理状況</div>
-                    <a href="#" class="view-all">すべて表示 <i class="fas fa-chevron-right"></i></a>
-                </div>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th>処理日</th>
-                            <th>処理種別</th>
-                            <th>内容</th>
-                            <th>処理者</th>
-                            <th>状態</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>2025-04-26</td>
-                            <td>口座振替</td>
-                            <td>4月分口座振替データ作成</td>
-                            <td>システム</td>
-                            <td><span class="status status-success">完了</span></td>
-                        </tr>
-                        <tr>
-                            <td>2025-04-25</td>
-                            <td>調定処理</td>
-                            <td>4月分給食費調定額確定</td>
-                            <td>田中 太郎</td>
-                            <td><span class="status status-success">完了</span></td>
-                        </tr>
-                        <tr>
-                            <td>2025-04-25</td>
-                            <td>納付書発行</td>
-                            <td>4月分納付書発行（125件）</td>
-                            <td>佐藤 花子</td>
-                            <td><span class="status status-success">完了</span></td>
-                        </tr>
-                        <tr>
-                            <td>2025-04-24</td>
-                            <td>督促状発行</td>
-                            <td>3月分督促状発行（18件）</td>
-                            <td>山田 次郎</td>
-                            <td><span class="status status-warning">処理中</span></td>
-                        </tr>
-                        <tr>
-                            <td>2025-04-23</td>
-                            <td>返金処理</td>
-                            <td>3月分過誤納金返金処理（5件）</td>
-                            <td>鈴木 一郎</td>
-                            <td><span class="status status-danger">未処理</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="recent-section">
-                <div class="section-header">
-                    <div class="section-title">未収金状況</div>
-                    <a href="#" class="view-all">詳細表示 <i class="fas fa-chevron-right"></i></a>
-                </div>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th>学校</th>
-                            <th>現年度分</th>
-                            <th>過年度分</th>
-                            <th>合計</th>
-                            <th>未収率</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>文京第一小学校</td>
-                            <td>85,200円</td>
-                            <td>42,600円</td>
-                            <td>127,800円</td>
-                            <td>1.8%</td>
-                        </tr>
-                        <tr>
-                            <td>文京第二小学校</td>
-                            <td>65,400円</td>
-                            <td>31,800円</td>
-                            <td>97,200円</td>
-                            <td>2.1%</td>
-                        </tr>
-                        <tr>
-                            <td>文京第三小学校</td>
-                            <td>42,600円</td>
-                            <td>15,900円</td>
-                            <td>58,500円</td>
-                            <td>1.5%</td>
-                        </tr>
-                        <tr>
-                            <td>文京第一中学校</td>
-                            <td>25,500円</td>
-                            <td>19,500円</td>
-                            <td>45,000円</td>
-                            <td>0.9%</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    
-    <div class="notifications">
-        <div class="notification">
-            <div class="notification-icon notification-success">
-                <i class="fas fa-check"></i>
-            </div>
-            <div class="notification-content">
-                <div class="notification-title">処理完了</div>
-                <div class="notification-message">4月分口座振替データの作成が完了しました。</div>
-            </div>
-            <button class="notification-close">&times;</button>
         </div>
     </div>
 </body>
